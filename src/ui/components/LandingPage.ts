@@ -521,9 +521,7 @@ export class LandingPage {
     logoSection.className = 'sidebar-logo';
     logoSection.innerHTML = `
       <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19 22H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2zM12 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM8 10l4 4 4-4H8zm4 8l4-4H8l4 4z"/>
-        </svg>
+        <img src="/icons/icon-512x512.svg" alt="JemaChess Logo" style="width: 100%; height: 100%; object-fit: contain;" />
       </div>
       <span class="logo-text">JemaChess</span>
     `;

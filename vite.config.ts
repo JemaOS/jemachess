@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'path';
@@ -123,5 +124,9 @@ export default defineConfig({
 
   preview: {
     port: 4173,
+  },
+
+  test: {
+    include: ['tests/unit/**/*.{test,spec}.ts'],
   },
 });

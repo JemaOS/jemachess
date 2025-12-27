@@ -47,9 +47,7 @@ export class MainMenu {
     const logo = document.createElement('div');
     logo.className = 'menu-logo';
     logo.innerHTML = `
-      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 10C45 10 40 15 40 20C40 25 42 28 45 30L43 45H35C33 45 31 47 31 49V53C31 55 33 57 35 57H38L36 75H30C28 75 26 77 26 79V85C26 87 28 89 30 89H70C72 89 74 87 74 85V79C74 77 72 75 70 75H64L62 57H65C67 57 69 55 69 53V49C69 47 67 45 65 45H57L55 30C58 28 60 25 60 20C60 15 55 10 50 10Z" fill="currentColor"/>
-      </svg>
+      <img src="/icons/icon-512x512.svg" alt="Chess Logo" style="width: 100%; height: 100%; object-fit: contain;" />
     `;
     logoSection.appendChild(logo);
 
