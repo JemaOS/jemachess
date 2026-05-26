@@ -1,7 +1,15 @@
 /**
- * PWA Installation Helper
- * Handles PWA installation prompts and status detection for ChromeOS and other platforms
+ * PWA Installation & Update Helper
+ * 
+ * Handles:
+ * - Service worker registration via vite-plugin-pwa
+ * - Automatic update detection
+ * - Update on reconnect (when coming back online)
+ * - Install prompt management
+ * - Offline/online connectivity monitoring
  */
+
+import { registerSW } from 'virtual:pwa-register';
 
 export interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -13,6 +21,131 @@ declare global {
     beforeinstallprompt: BeforeInstallPromptEvent;
   }
 }
+
+// ============================================
+// Service Worker Registration & Update System
+// ============================================
+
+let updateSW: ((reloadPage?: boolean) => Promise<void>) | null = null;
+let swRegistration: ServiceWorkerRegistration | null = null;
+let updateAvailable = false;
+
+// Callbacks for the app to hook into
+let onUpdateAvailableCallback: (() => void) | null = null;
+let onOfflineReadyCallback: (() => void) | null = null;
+
+/**
+ * Initialize the service worker with automatic update support.
+ * 
+ * The SW will:
+ * - Precache all app assets on first install (offline support)
+ * - Check for updates periodically and on reconnect
+ * - Notify the app when an update is available
+ */
+export function initServiceWorker(): void {
+  updateSW = registerSW({
+    immediate: true,
+    onRegisteredSW(swUrl, registration) {
+      swRegistration = registration ?? null;
+      console.log('[PWA] Service Worker registered:', swUrl);
+
+      if (registration) {
+        // Check for updates periodically (every 60 minutes)
+        setInterval(() => {
+          registration.update().catch((err: unknown) => {
+            console.warn('[PWA] Periodic update check failed:', err);
+          });
+        }, 60 * 60 * 1000);
+
+        // Check for updates when coming back online
+        window.addEventListener('online', () => {
+          console.log('[PWA] Back online - checking for updates...');
+          registration.update().catch((err: unknown) => {
+            console.warn('[PWA] Online update check failed:', err);
+          });
+        });
+
+        // Check for updates when app becomes visible again
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible' && navigator.onLine) {
+            registration.update().catch((err: unknown) => {
+              console.warn('[PWA] Visibility update check failed:', err);
+            });
+          }
+        });
+      }
+    },
+    onNeedRefresh() {
+      // A new version of the app is available
+      updateAvailable = true;
+      console.log('[PWA] New content available - update ready');
+      if (onUpdateAvailableCallback) {
+        onUpdateAvailableCallback();
+      }
+    },
+    onOfflineReady() {
+      console.log('[PWA] App is ready for offline use');
+      if (onOfflineReadyCallback) {
+        onOfflineReadyCallback();
+      }
+    },
+    onRegisterError(error) {
+      console.error('[PWA] Service Worker registration failed:', error);
+    },
+  });
+}
+
+/**
+ * Apply the pending update and reload the page.
+ * Call this when the user accepts the update.
+ */
+export async function applyUpdate(): Promise<void> {
+  if (updateSW && updateAvailable) {
+    await updateSW(true);
+  }
+}
+
+/**
+ * Check if an update is available
+ */
+export function isUpdateAvailable(): boolean {
+  return updateAvailable;
+}
+
+/**
+ * Manually trigger an update check
+ */
+export async function checkForUpdate(): Promise<void> {
+  if (swRegistration) {
+    try {
+      await swRegistration.update();
+    } catch (err) {
+      console.warn('[PWA] Manual update check failed:', err);
+    }
+  }
+}
+
+/**
+ * Set callback for when an update is available
+ */
+export function onUpdateAvailable(callback: () => void): void {
+  onUpdateAvailableCallback = callback;
+  // If update is already available, call immediately
+  if (updateAvailable) {
+    callback();
+  }
+}
+
+/**
+ * Set callback for when the app is ready for offline use
+ */
+export function onOfflineReady(callback: () => void): void {
+  onOfflineReadyCallback = callback;
+}
+
+// ============================================
+// PWA Install Prompt
+// ============================================
 
 export class PWAInstaller {
   private deferredPrompt: BeforeInstallPromptEvent | null = null;
@@ -54,8 +187,9 @@ export class PWAInstaller {
         this.onInstalled();
       }
       
-      // Log installation for analytics
-      console.log('Chess Royale PWA was installed');
+      // Persist installation flag
+      this.markAsInstalled();
+      console.log('[PWA] JemaChess was installed');
     });
 
     // Check if already running as PWA
@@ -84,7 +218,7 @@ export class PWAInstaller {
    */
   async promptInstall(): Promise<boolean> {
     if (!this.deferredPrompt) {
-      console.warn('Install prompt not available');
+      console.warn('[PWA] Install prompt not available');
       return false;
     }
 
@@ -98,10 +232,10 @@ export class PWAInstaller {
     this.deferredPrompt = null;
 
     if (outcome === 'accepted') {
-      console.log('User accepted the install prompt');
+      console.log('[PWA] User accepted the install prompt');
       return true;
     } else {
-      console.log('User dismissed the install prompt');
+      console.log('[PWA] User dismissed the install prompt');
       return false;
     }
   }
@@ -164,13 +298,10 @@ export class PWAInstaller {
    * Check if the app was installed (persisted check)
    */
   private checkIfInstalled(): boolean {
-    // Check localStorage for installation flag
-    const installed = localStorage.getItem('chess-royale-installed');
+    const installed = localStorage.getItem('jemachess-installed');
     if (installed === 'true') {
       return true;
     }
-
-    // Check if running in standalone mode
     return this.isRunningAsPWA();
   }
 
@@ -178,7 +309,7 @@ export class PWAInstaller {
    * Mark the app as installed in localStorage
    */
   markAsInstalled(): void {
-    localStorage.setItem('chess-royale-installed', 'true');
+    localStorage.setItem('jemachess-installed', 'true');
     this.isInstalled = true;
   }
 }
@@ -186,62 +317,9 @@ export class PWAInstaller {
 // Singleton instance
 export const pwaInstaller = new PWAInstaller();
 
-/**
- * Register the service worker
- */
-export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
-  if (!('serviceWorker' in navigator)) {
-    console.warn('Service workers are not supported');
-    return null;
-  }
-
-  try {
-    const registration = await navigator.serviceWorker.register('/sw.js', {
-      scope: '/'
-    });
-
-    console.log('Service Worker registered with scope:', registration.scope);
-
-    // Handle updates
-    registration.addEventListener('updatefound', () => {
-      const newWorker = registration.installing;
-      if (newWorker) {
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // New content is available, notify user
-            console.log('New content available, please refresh');
-            
-            // Optionally auto-update
-            if (confirm('A new version of Chess Royale is available. Reload to update?')) {
-              newWorker.postMessage('skipWaiting');
-              window.location.reload();
-            }
-          }
-        });
-      }
-    });
-
-    return registration;
-  } catch (error) {
-    console.error('Service Worker registration failed:', error);
-    return null;
-  }
-}
-
-/**
- * Unregister all service workers (useful for development)
- */
-export async function unregisterServiceWorkers(): Promise<void> {
-  if (!('serviceWorker' in navigator)) {
-    return;
-  }
-
-  const registrations = await navigator.serviceWorker.getRegistrations();
-  for (const registration of registrations) {
-    await registration.unregister();
-  }
-  console.log('All service workers unregistered');
-}
+// ============================================
+// Connectivity helpers
+// ============================================
 
 /**
  * Check if the app is online

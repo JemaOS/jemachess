@@ -36,79 +36,88 @@ export default defineConfig({
 
   plugins: [
     VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'pieces/**/*'],
+      registerType: 'prompt',
+      injectRegister: false,
+      includeAssets: [
+        'icons/*.svg',
+        'pieces/**/*.svg',
+      ],
       manifest: {
-        name: 'Chess Royale',
-        short_name: 'Chess',
-        description: 'Peer-to-peer chess game with beautiful glassmorphism UI',
-        theme_color: '#6b6fdb',
-        background_color: '#1a1a2e',
+        name: 'JemaChess',
+        short_name: 'JemaChess',
+        description: "Jeu d'échecs moderne avec IA et multijoueur",
+        theme_color: '#7d82ea',
+        background_color: '#0a0a0f',
         display: 'standalone',
         orientation: 'any',
         start_url: '/',
+        scope: '/',
+        lang: 'fr',
+        dir: 'ltr',
+        categories: ['games', 'entertainment'],
         icons: [
           {
-            src: '/icons/icon-72x72.png',
-            sizes: '72x72',
-            type: 'image/png',
-            purpose: 'maskable any',
-          },
-          {
-            src: '/icons/icon-96x96.png',
-            sizes: '96x96',
-            type: 'image/png',
-            purpose: 'maskable any',
-          },
-          {
-            src: '/icons/icon-128x128.png',
-            sizes: '128x128',
-            type: 'image/png',
-            purpose: 'maskable any',
-          },
-          {
-            src: '/icons/icon-144x144.png',
-            sizes: '144x144',
-            type: 'image/png',
-            purpose: 'maskable any',
-          },
-          {
-            src: '/icons/icon-152x152.png',
-            sizes: '152x152',
-            type: 'image/png',
-            purpose: 'maskable any',
-          },
-          {
-            src: '/icons/icon-192x192.png',
+            src: '/icons/icon-192x192.svg',
             sizes: '192x192',
-            type: 'image/png',
-            purpose: 'maskable any',
+            type: 'image/svg+xml',
+            purpose: 'any maskable',
           },
           {
-            src: '/icons/icon-384x384.png',
+            src: '/icons/icon-384x384.svg',
             sizes: '384x384',
-            type: 'image/png',
-            purpose: 'maskable any',
+            type: 'image/svg+xml',
+            purpose: 'any',
           },
           {
-            src: '/icons/icon-512x512.png',
+            src: '/icons/icon-512x512.svg',
             sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable any',
+            type: 'image/svg+xml',
+            purpose: 'any maskable',
           },
         ],
+        prefer_related_applications: false,
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Precache all built assets (JS, CSS, HTML, icons, pieces)
+        globPatterns: ['**/*.{js,css,html,svg,ico,woff2}'],
+        // Navigation fallback to index.html for SPA routing
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//],
+        // Don't precache sourcemaps
+        globIgnores: ['**/*.map'],
+        // Clean old precaches on activate
+        cleanupOutdatedCaches: true,
+        // Take control immediately when new SW activates
+        clientsClaim: true,
+        // Runtime caching strategies
         runtimeCaching: [
           {
+            // PeerJS signaling server - network first, fallback to cache
             urlPattern: /^https:\/\/.*peerjs\.com/,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'peerjs-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24,
+                maxAgeSeconds: 60 * 60 * 24, // 24 hours
+              },
+              networkTimeoutSeconds: 5,
+            },
+          },
+          {
+            // GunDB relay servers - network only (real-time data)
+            urlPattern: /^https:\/\/.*gun\./,
+            handler: 'NetworkOnly',
+          },
+          {
+            // Google Fonts or external CSS (if any)
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'fonts-cache',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
               },
             },
           },

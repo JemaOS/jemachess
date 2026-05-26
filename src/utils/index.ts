@@ -35,8 +35,12 @@ export {
 export {
   PWAInstaller,
   pwaInstaller,
-  registerServiceWorker,
-  unregisterServiceWorkers,
+  initServiceWorker,
+  applyUpdate,
+  isUpdateAvailable,
+  checkForUpdate,
+  onUpdateAvailable,
+  onOfflineReady,
   isOnline,
   onConnectivityChange,
   type BeforeInstallPromptEvent
