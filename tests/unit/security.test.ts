@@ -1,8 +1,34 @@
 import { describe, it, expect } from 'vitest';
-import { deserializeMessage, isValidMessage, MessageType } from '../../src/network/messages';
+import {
+  createChatMessage,
+  createDrawAcceptMessage,
+  createDrawDeclineMessage,
+  createDrawOfferMessage,
+  createGameEndMessage,
+  createGameStartMessage,
+  createHelloMessage,
+  createMoveAckMessage,
+  createMoveMessage,
+  createMoveRejectMessage,
+  createPingMessage,
+  createPongMessage,
+  createReadyMessage,
+  createResignMessage,
+  createStateRequestMessage,
+  createStateResponseMessage,
+  deserializeMessage,
+  isValidMessage,
+  MessageType,
+} from '../../src/network/messages';
+import { GameStatus, PieceColor, PieceType } from '../../src/types';
 import { clampNumber, clampText, escapeHtml, sanitizeDisplayName } from '../../src/utils/security';
 
 const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const move = {
+  from: { file: 4, rank: 1 },
+  to: { file: 4, rank: 3 },
+  promotion: PieceType.QUEEN,
+};
 
 function baseMessage(type: MessageType) {
   return {
@@ -37,6 +63,35 @@ describe('security helpers', () => {
 });
 
 describe('network message validation', () => {
+  it('accepts every message produced by the protocol factories', () => {
+    const sender = 'peer-123';
+    const messages = [
+      createHelloMessage(sender, 'Alice'),
+      createReadyMessage(sender, PieceColor.WHITE),
+      createGameStartMessage(sender, PieceColor.WHITE, PieceColor.BLACK, START_FEN, {
+        initial: 600,
+        increment: 5,
+      }),
+      createGameEndMessage(sender, GameStatus.IN_PROGRESS, null, 'abandon'),
+      createResignMessage(sender, PieceColor.BLACK),
+      createDrawOfferMessage(sender, PieceColor.WHITE),
+      createDrawAcceptMessage(sender),
+      createDrawDeclineMessage(sender),
+      createMoveMessage(sender, move, 1, START_FEN),
+      createMoveAckMessage(sender, 1, START_FEN),
+      createMoveRejectMessage(sender, 1, 'invalid', START_FEN),
+      createStateRequestMessage(sender, 0),
+      createStateResponseMessage(sender, START_FEN, [move], 1, 600, 600, GameStatus.IN_PROGRESS),
+      createChatMessage(sender, 'Bonjour'),
+      createPingMessage(sender, 1),
+      createPongMessage(sender, 1, Date.now()),
+    ];
+
+    for (const message of messages) {
+      expect(isValidMessage(message), message.type).toBe(true);
+    }
+  });
+
   it('accepts valid chat and move messages', () => {
     expect(
       isValidMessage({
