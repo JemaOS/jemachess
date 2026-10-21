@@ -71,3 +71,6 @@ export {
   type ResolvedTheme,
   type ThemeListener
 } from './ThemeManager';
+
+// Safe rendering helpers for untrusted data
+export { escapeHtml, clampText, sanitizeDisplayName, clampNumber } from './security';

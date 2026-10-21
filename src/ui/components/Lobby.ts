@@ -6,6 +6,7 @@
 
 import { Room, Player, PieceColor } from '../../types';
 import { Toast } from './Toast';
+import { sanitizeDisplayName } from '../../utils/security';
 
 /**
  * Lobby mode - create or join
@@ -36,7 +37,11 @@ export class Lobby {
     
     // Try to load saved player name
     try {
-      this.playerName = localStorage.getItem('chess-player-name') || '';
+      this.playerName = sanitizeDisplayName(
+        localStorage.getItem('chess-player-name') || '',
+        '',
+        20
+      );
     } catch (e) {
       // Ignore localStorage errors
     }
@@ -169,14 +174,15 @@ export class Lobby {
       }
       
       // Save player name
+      const safeName = sanitizeDisplayName(this.playerName, '', 20);
       try {
-        localStorage.setItem('chess-player-name', this.playerName);
+        localStorage.setItem('chess-player-name', safeName);
       } catch (e) {
         // Ignore
       }
       
       if (this.onCreateRoom) {
-        this.onCreateRoom(this.playerName.trim());
+        this.onCreateRoom(safeName);
       }
     });
     form.appendChild(createBtn);
@@ -281,15 +287,16 @@ export class Lobby {
       }
       
       // Save player name
+      const safeName = sanitizeDisplayName(this.playerName, '', 20);
       try {
-        localStorage.setItem('chess-player-name', this.playerName);
+        localStorage.setItem('chess-player-name', safeName);
       } catch (e) {
         // Ignore
       }
       
       if (this.onJoinRoom) {
         // Don't uppercase - UUID codes are lowercase
-        this.onJoinRoom(this.roomCode.trim(), this.playerName.trim());
+        this.onJoinRoom(this.roomCode.trim(), safeName);
       }
     });
     form.appendChild(joinBtn);

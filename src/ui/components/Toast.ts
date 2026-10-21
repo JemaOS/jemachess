@@ -60,6 +60,10 @@ export class Toast {
       this.container.className = 'toast-container';
       document.body.appendChild(this.container);
     }
+
+    this.container.setAttribute('role', 'status');
+    this.container.setAttribute('aria-live', 'polite');
+    this.container.setAttribute('aria-atomic', 'true');
   }
 
   /**

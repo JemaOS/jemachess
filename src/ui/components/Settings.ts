@@ -40,6 +40,7 @@ export class Settings {
   private container: HTMLElement;
   private settingsElement: HTMLElement | null = null;
   private settings: GameSettings;
+  private unsubscribeTheme: (() => void) | null = null;
 
   // Event callbacks
   public onSettingsChange: ((settings: GameSettings) => void) | null = null;
@@ -52,6 +53,35 @@ export class Settings {
       theme: themeManager.getPreference(),
       ...initialSettings,
     };
+
+    if (
+      this.settings.theme !== 'system' &&
+      this.settings.theme !== 'light' &&
+      this.settings.theme !== 'dark'
+    ) {
+      this.settings.theme = themeManager.getPreference();
+    }
+
+    // Keep the selector in sync when another tab or the OS changes the theme.
+    this.unsubscribeTheme = themeManager.subscribe((_theme, preference) => {
+      this.settings.theme = preference;
+      this.updateThemeModeSelection();
+    });
+  }
+
+  /**
+   * Reflects the persisted preference in the theme selector.
+   */
+  private updateThemeModeSelection(): void {
+    const selector = this.settingsElement?.querySelector('.theme-mode-selector');
+    if (!selector) return;
+
+    selector.querySelectorAll<HTMLElement>('.theme-mode-option').forEach((element) => {
+      const isSelected = element.dataset.themeMode === this.settings.theme;
+      element.classList.toggle('selected', isSelected);
+      element.setAttribute('aria-checked', String(isSelected));
+      element.tabIndex = isSelected ? 0 : -1;
+    });
   }
 
   /**
@@ -265,6 +295,7 @@ export class Settings {
       option.dataset.themeMode = mode.value;
       option.setAttribute('role', 'radio');
       option.setAttribute('aria-checked', String(this.settings.theme === mode.value));
+      option.tabIndex = this.settings.theme === mode.value ? 0 : -1;
 
       const preview = document.createElement('span');
       preview.className = `theme-mode-preview theme-mode-preview-${mode.value}`;
@@ -289,6 +320,8 @@ export class Settings {
       }
 
       option.addEventListener('click', () => {
+        if (this.settings.theme === mode.value) return;
+
         this.settings.theme = mode.value;
         themeManager.setPreference(mode.value);
 
@@ -296,6 +329,7 @@ export class Settings {
           const isSelected = element.dataset.themeMode === mode.value;
           element.classList.toggle('selected', isSelected);
           element.setAttribute('aria-checked', String(isSelected));
+          element.tabIndex = isSelected ? 0 : -1;
         });
 
         this.notifyChange();
@@ -303,6 +337,32 @@ export class Settings {
 
       selector.appendChild(option);
     }
+
+    selector.addEventListener('keydown', (event) => {
+      const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+      if (!keys.includes(event.key)) return;
+
+      event.preventDefault();
+      const options = Array.from(
+        selector.querySelectorAll<HTMLButtonElement>('.theme-mode-option')
+      );
+      const currentIndex = options.findIndex((element) => element === document.activeElement);
+      if (currentIndex === -1) return;
+
+      let nextIndex = currentIndex;
+      if (event.key === 'Home') {
+        nextIndex = 0;
+      } else if (event.key === 'End') {
+        nextIndex = options.length - 1;
+      } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+        nextIndex = (currentIndex - 1 + options.length) % options.length;
+      } else {
+        nextIndex = (currentIndex + 1) % options.length;
+      }
+
+      options[nextIndex]?.focus();
+      options[nextIndex]?.click();
+    });
 
     return selector;
   }
@@ -414,15 +474,45 @@ export class Settings {
    * Loads settings from localStorage
    */
   static loadSettings(): GameSettings {
+    const settings: GameSettings = {
+      ...DEFAULT_SETTINGS,
+      theme: themeManager.getPreference(),
+    };
+
     try {
       const saved = localStorage.getItem('chess-settings');
-      if (saved) {
-        return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+      if (!saved) return settings;
+
+      const parsed = JSON.parse(saved) as Record<string, unknown>;
+
+      if (
+        typeof parsed.pieceTheme === 'string' &&
+        (Object.values(PieceTheme) as string[]).includes(parsed.pieceTheme)
+      ) {
+        settings.pieceTheme = parsed.pieceTheme as PieceTheme;
+      }
+
+      if (typeof parsed.soundEnabled === 'boolean') {
+        settings.soundEnabled = parsed.soundEnabled;
+      }
+      if (typeof parsed.showLegalMoves === 'boolean') {
+        settings.showLegalMoves = parsed.showLegalMoves;
+      }
+      if (typeof parsed.showCoordinates === 'boolean') {
+        settings.showCoordinates = parsed.showCoordinates;
+      }
+      if (typeof parsed.autoQueen === 'boolean') {
+        settings.autoQueen = parsed.autoQueen;
+      }
+
+      if (parsed.theme === 'system' || parsed.theme === 'light' || parsed.theme === 'dark') {
+        settings.theme = parsed.theme;
       }
     } catch (e) {
       console.warn('Failed to load settings from localStorage:', e);
     }
-    return { ...DEFAULT_SETTINGS };
+
+    return settings;
   }
 
   /**
@@ -450,6 +540,9 @@ export class Settings {
    * Destroys the settings panel
    */
   destroy(): void {
+    this.unsubscribeTheme?.();
+    this.unsubscribeTheme = null;
+
     if (this.settingsElement) {
       this.settingsElement.remove();
       this.settingsElement = null;

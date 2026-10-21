@@ -141,7 +141,7 @@
 }
 
 .square.light .coordinate {
-  color: rgba(107, 111, 219, 0.8);
+  color: var(--color-primary-dark);
 }
 
 .square.dark .coordinate {

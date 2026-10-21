@@ -14,6 +14,7 @@ import {
   Move,
 } from '../types';
 import { ChessGame, AIDifficulty } from '../engine';
+import { sanitizeDisplayName } from '../utils/security';
 
 // ============================================
 // State Types
@@ -863,8 +864,53 @@ export class Store {
         }
       }
       if (stored) {
-        const settings = JSON.parse(stored);
-        this.state = { ...this.state, ...settings };
+        const parsed = JSON.parse(stored) as Record<string, unknown>;
+        const sanitized: Partial<AppState> = {};
+
+        if (
+          typeof parsed.pieceTheme === 'string' &&
+          (Object.values(PieceTheme) as string[]).includes(parsed.pieceTheme)
+        ) {
+          sanitized.pieceTheme = parsed.pieceTheme as PieceTheme;
+        }
+
+        if (typeof parsed.soundEnabled === 'boolean') {
+          sanitized.soundEnabled = parsed.soundEnabled;
+        }
+        if (typeof parsed.showCoordinates === 'boolean') {
+          sanitized.showCoordinates = parsed.showCoordinates;
+        }
+        if (typeof parsed.autoQueen === 'boolean') {
+          sanitized.autoQueen = parsed.autoQueen;
+        }
+        if (typeof parsed.confirmMoves === 'boolean') {
+          sanitized.confirmMoves = parsed.confirmMoves;
+        }
+
+        if (parsed.gameStats && typeof parsed.gameStats === 'object') {
+          const stats = parsed.gameStats as Record<string, unknown>;
+          const numericKeys: (keyof GameStats)[] = [
+            'gamesCreated',
+            'gamesOnline',
+            'gamesVsAI',
+            'gamesLocal',
+            'gamesCoach',
+            'totalMoves',
+            'lastUpdated',
+          ];
+          const gameStats: GameStats = { ...this.state.gameStats };
+
+          for (const key of numericKeys) {
+            const value = stats[key];
+            if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+              gameStats[key] = Math.floor(value);
+            }
+          }
+
+          sanitized.gameStats = gameStats;
+        }
+
+        this.state = { ...this.state, ...sanitized };
       }
     } catch (error) {
       console.warn('Failed to load settings:', error);
@@ -924,8 +970,45 @@ export class Store {
       const stored = localStorage.getItem(Store.ONLINE_SESSION_KEY);
       if (!stored) return null;
       
-      const session: OnlineSession = JSON.parse(stored);
-      
+      const parsed = JSON.parse(stored) as Record<string, unknown>;
+
+      if (
+        typeof parsed.roomId !== 'string' ||
+        parsed.roomId.length === 0 ||
+        parsed.roomId.length > 200 ||
+        typeof parsed.isHost !== 'boolean' ||
+        typeof parsed.playerName !== 'string' ||
+        typeof parsed.opponentName !== 'string' ||
+        (parsed.playerColor !== PieceColor.WHITE && parsed.playerColor !== PieceColor.BLACK) ||
+        typeof parsed.gameFen !== 'string' ||
+        !Array.isArray(parsed.moveHistory) ||
+        typeof parsed.whiteTime !== 'number' ||
+        !Number.isFinite(parsed.whiteTime) ||
+        typeof parsed.blackTime !== 'number' ||
+        !Number.isFinite(parsed.blackTime) ||
+        typeof parsed.timestamp !== 'number' ||
+        !Number.isFinite(parsed.timestamp)
+      ) {
+        this.clearOnlineSession();
+        return null;
+      }
+
+      const session: OnlineSession = {
+        roomId: parsed.roomId,
+        isHost: parsed.isHost,
+        playerName: sanitizeDisplayName(parsed.playerName, 'Joueur'),
+        opponentName: sanitizeDisplayName(parsed.opponentName, 'Adversaire'),
+        playerColor: parsed.playerColor,
+        gameFen: parsed.gameFen.slice(0, 200),
+        moveHistory: parsed.moveHistory
+          .filter((move): move is string => typeof move === 'string')
+          .map((move) => move.slice(0, 20))
+          .slice(0, 10000),
+        whiteTime: Math.max(0, parsed.whiteTime),
+        blackTime: Math.max(0, parsed.blackTime),
+        timestamp: parsed.timestamp,
+      };
+
       // Check if session is expired
       if (Date.now() - session.timestamp > Store.SESSION_EXPIRY) {
         console.log('Online session expired, clearing...');

@@ -200,7 +200,11 @@ class ThemeManager {
     this.updateAppleStatusBarMeta();
 
     for (const listener of this.listeners) {
-      listener(this.resolved, this.preference);
+      try {
+        listener(this.resolved, this.preference);
+      } catch (error) {
+        console.error('[ThemeManager] Theme listener failed:', error);
+      }
     }
 
     document.dispatchEvent(

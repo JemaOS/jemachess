@@ -7,6 +7,7 @@
 
 import Gun from 'gun';
 import 'gun/sea';
+import { escapeHtml as escapeHtmlText, sanitizeDisplayName } from '../../utils/security';
 
 // ============================================
 // Types
@@ -43,6 +44,8 @@ interface ChatState {
 // Global chat room identifier
 const CHAT_ROOM_ID = 'chess-game-global-chat-v1';
 const MAX_MESSAGES = 200;
+const MAX_MESSAGE_LENGTH = 500;
+const MAX_NAME_LENGTH = 30;
 const USER_TIMEOUT = 60000; // 1 minute (reduced for faster detection)
 const PRESENCE_INTERVAL = 15000; // 15 seconds (more frequent updates)
 const INITIAL_PRESENCE_DELAY = 1000; // 1 second delay for initial presence
@@ -87,6 +90,7 @@ export class Chat {
   private messageListElement: HTMLElement | null = null;
   private inputElement: HTMLInputElement | null = null;
   private seenMessageIds: Set<string> = new Set();
+  private renderScheduled: boolean = false;
   
   // Callbacks
   public onClose: (() => void) | null = null;
@@ -232,9 +236,10 @@ export class Chat {
    */
   async connect(playerName: string, existingUserId?: string): Promise<void> {
     if (this.state.isConnecting || this.state.isConnected) return;
-    
+
+    const safeName = sanitizeDisplayName(playerName, 'Invité', MAX_NAME_LENGTH);
     this.state.isConnecting = true;
-    this.state.localName = playerName;
+    this.state.localName = safeName;
     this.render();
     
     try {
@@ -287,11 +292,11 @@ export class Chat {
       
       // Add system message (only if not restoring session)
       if (!existingUserId) {
-        this.addSystemMessage(`Vous avez rejoint le chat en tant que ${playerName}`);
+        this.addSystemMessage(`Vous avez rejoint le chat en tant que ${safeName}`);
         // Send join message to others
         this.sendJoinMessage();
       } else {
-        this.addSystemMessage(`Reconnecté en tant que ${playerName}`);
+        this.addSystemMessage(`Reconnecté en tant que ${safeName}`);
       }
       
       this.render();
@@ -348,13 +353,14 @@ export class Chat {
    * Send a chat message
    */
   sendMessage(content: string): void {
-    if (!this.state.isConnected || !content.trim()) return;
+    const trimmed = content.trim().slice(0, MAX_MESSAGE_LENGTH);
+    if (!this.state.isConnected || !trimmed) return;
     
     const message: ChatMessage = {
       id: this.generateMessageId(),
       senderId: this.state.localUserId,
       senderName: this.state.localName,
-      content: content.trim(),
+      content: trimmed,
       timestamp: Date.now(),
       type: 'message'
     };
@@ -432,8 +438,9 @@ export class Chat {
       if (!data || this.seenMessageIds.has(key)) return;
       
       try {
-        const message: ChatMessage = JSON.parse(data);
-        
+        const message = this.normalizeMessage(JSON.parse(data), key);
+        if (!message || message.type === 'system') return;
+
         // Skip our own messages (already added locally)
         if (message.senderId === this.state.localUserId && message.type === 'message') {
           this.seenMessageIds.add(key);
@@ -468,7 +475,22 @@ export class Chat {
       }
       
       try {
-        const user: ChatUser = JSON.parse(data);
+        const rawUser = JSON.parse(data) as Record<string, unknown>;
+        if (
+          typeof rawUser.id !== 'string' ||
+          rawUser.id.length === 0 ||
+          typeof rawUser.name !== 'string' ||
+          typeof rawUser.lastSeen !== 'number' ||
+          !Number.isFinite(rawUser.lastSeen)
+        ) {
+          return;
+        }
+
+        const user: ChatUser = {
+          id: rawUser.id.slice(0, 200),
+          name: sanitizeDisplayName(rawUser.name, 'Joueur', MAX_NAME_LENGTH),
+          lastSeen: rawUser.lastSeen
+        };
         
         // Skip ourselves
         if (user.id === this.state.localUserId) return;
@@ -630,8 +652,7 @@ export class Chat {
     this.saveMessages();
     
     // Update UI
-    this.renderMessageList();
-    this.scrollToBottom();
+    this.scheduleRender();
     
     // Increment unread count if chat is closed and message is not from us
     if (!this.isOpen && message.senderId !== this.state.localUserId && message.type === 'message') {
@@ -759,6 +780,26 @@ export class Chat {
       this.messageListElement.innerHTML = this.renderMessages();
     }
   }
+
+  /**
+   * Coalesces consecutive message renders into a single animation frame.
+   */
+  private scheduleRender(): void {
+    if (this.renderScheduled) return;
+    this.renderScheduled = true;
+
+    const run = (): void => {
+      this.renderScheduled = false;
+      this.renderMessageList();
+      this.scrollToBottom();
+    };
+
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(run);
+    } else {
+      setTimeout(run, 16);
+    }
+  }
   
   /**
    * Update status display
@@ -788,23 +829,62 @@ export class Chat {
    * Generate a user ID
    */
   private generateUserId(): string {
-    return `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return this.generateId('user');
   }
   
   /**
    * Generate a message ID
    */
   private generateMessageId(): string {
-    return `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return this.generateId('msg');
+  }
+
+  /**
+   * Generates an unpredictable ID when the Web Crypto API is available.
+   */
+  private generateId(prefix: string): string {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return `${prefix}-${crypto.randomUUID()}`;
+    }
+    return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
   }
   
+  /**
+   * Validates and normalizes an untrusted message.
+   */
+  private normalizeMessage(value: unknown, fallbackId: string): ChatMessage | null {
+    if (typeof value !== 'object' || value === null) return null;
+
+    const raw = value as Record<string, unknown>;
+    const validTypes: ChatMessage['type'][] = ['message', 'system', 'join', 'leave'];
+
+    if (
+      typeof raw.senderId !== 'string' ||
+      raw.senderId.length === 0 ||
+      typeof raw.senderName !== 'string' ||
+      typeof raw.content !== 'string' ||
+      typeof raw.timestamp !== 'number' ||
+      !Number.isFinite(raw.timestamp) ||
+      !validTypes.includes(raw.type as ChatMessage['type'])
+    ) {
+      return null;
+    }
+
+    return {
+      id: typeof raw.id === 'string' && raw.id.length > 0 ? raw.id.slice(0, 200) : fallbackId,
+      senderId: raw.senderId.slice(0, 200),
+      senderName: sanitizeDisplayName(raw.senderName, 'Joueur', MAX_NAME_LENGTH),
+      content: raw.content.slice(0, MAX_MESSAGE_LENGTH),
+      timestamp: raw.timestamp,
+      type: raw.type as ChatMessage['type']
+    };
+  }
+
   /**
    * Escape HTML
    */
   private escapeHtml(text: string): string {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    return escapeHtmlText(text);
   }
   
   /**
@@ -826,10 +906,15 @@ export class Chat {
     try {
       const saved = localStorage.getItem('chess-chat-messages');
       if (saved) {
-        const messages = JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (!Array.isArray(parsed)) return;
+
         // Only load recent messages (less than 1 hour old)
         const oneHourAgo = Date.now() - 3600000;
-        this.state.messages = messages.filter((m: ChatMessage) => m.timestamp > oneHourAgo);
+        this.state.messages = parsed
+          .slice(-MAX_MESSAGES)
+          .map((item: unknown, index: number) => this.normalizeMessage(item, `stored-${index}`))
+          .filter((message): message is ChatMessage => message !== null && message.timestamp > oneHourAgo);
         // Add message IDs to seen set
         this.state.messages.forEach((m: ChatMessage) => this.seenMessageIds.add(m.id));
       }
@@ -864,11 +949,14 @@ export class Chat {
         // Check if session is still valid (less than 24 hours old)
         const sessionAge = Date.now() - parseInt(savedSessionTime, 10);
         const maxSessionAge = 24 * 60 * 60 * 1000; // 24 hours
+        const safeUserId = /^[A-Za-z0-9_-]{1,200}$/.test(savedUserId)
+          ? savedUserId
+          : undefined;
         
         if (sessionAge < maxSessionAge) {
           // Auto-reconnect with saved credentials after a short delay
           setTimeout(() => {
-            this.connect(savedUserName, savedUserId);
+            this.connect(savedUserName, safeUserId);
           }, 500);
         } else {
           // Session expired, clear it

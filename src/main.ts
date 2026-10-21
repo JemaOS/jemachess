@@ -10,6 +10,7 @@
 import { App } from './app';
 import { initResponsiveManager } from './utils/ResponsiveManager';
 import { initTheme } from './utils/ThemeManager';
+import { escapeHtml } from './utils/security';
 import {
   initServiceWorker,
   onUpdateAvailable,
@@ -62,6 +63,14 @@ async function initializeApp(): Promise<void> {
     // Create and initialize the app
     app = new App(container);
     await app.init();
+
+    try {
+      if ((import.meta as { env?: { DEV?: boolean } }).env?.DEV) {
+        window.chessApp = app;
+      }
+    } catch {
+      // Ignore in environments without import.meta.env
+    }
     
     console.log('JemaChess initialized successfully');
   } catch (error) {
@@ -87,12 +96,16 @@ function showErrorMessage(message: string): void {
           </svg>
         </div>
         <h2>Erreur de chargement</h2>
-        <p>${message}</p>
-        <button class="glass-button primary" onclick="location.reload()">
-          Rafra\u00EEchir la page
+        <p>${escapeHtml(message)}</p>
+        <button class="glass-button primary error-refresh">
+          Rafraîchir la page
         </button>
       </div>
     `;
+
+    container.querySelector('.error-refresh')?.addEventListener('click', () => {
+      location.reload();
+    });
   }
 }
 
@@ -231,13 +244,4 @@ declare global {
   interface Window {
     chessApp?: App | null;
   }
-}
-
-// Use try-catch to handle environments where import.meta.env might not exist
-try {
-  if (typeof import.meta !== 'undefined' && (import.meta as { env?: { DEV?: boolean } }).env?.DEV) {
-    window.chessApp = app;
-  }
-} catch {
-  // Ignore in production
 }

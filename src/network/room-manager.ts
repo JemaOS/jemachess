@@ -7,6 +7,7 @@
 
 import { Room, RoomState, Player, PieceColor, GameConfig, TimeControl } from '../types';
 import { PeerConnection, PeerConfig } from './peer-connection';
+import { sanitizeDisplayName } from '../utils/security';
 import { 
   GameMessage, 
   MessageType,
@@ -79,12 +80,35 @@ export class RoomManager {
   
   /**
    * Generate a random 6-character room code
+   *
+   * Uses the Web Crypto API when available so codes are not predictable.
    */
   generateRoomCode(): string {
+    const chars = ROOM_CODE_CHARS;
+
+    if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+      const maxValidByte = Math.floor(256 / chars.length) * chars.length;
+      const buffer = new Uint8Array(ROOM_CODE_LENGTH * 2);
+      let code = '';
+
+      while (code.length < ROOM_CODE_LENGTH) {
+        crypto.getRandomValues(buffer);
+        for (const byte of buffer) {
+          // Rejection sampling avoids modulo bias.
+          if (byte >= maxValidByte) continue;
+          code += chars[byte % chars.length];
+          if (code.length === ROOM_CODE_LENGTH) break;
+        }
+      }
+
+      return code;
+    }
+
+    // Fallback for very old browsers.
     let code = '';
     for (let i = 0; i < ROOM_CODE_LENGTH; i++) {
-      const randomIndex = Math.floor(Math.random() * ROOM_CODE_CHARS.length);
-      code += ROOM_CODE_CHARS[randomIndex];
+      const randomIndex = Math.floor(Math.random() * chars.length);
+      code += chars[randomIndex];
     }
     return code;
   }
@@ -102,7 +126,7 @@ export class RoomManager {
     // Create local player
     this.localPlayer = {
       id: '', // Will be set after peer connection
-      name: playerName,
+      name: sanitizeDisplayName(playerName, 'Joueur', 20),
       color: null, // Will be assigned when game starts
       isReady: false,
       isConnected: true,
@@ -143,7 +167,7 @@ export class RoomManager {
     // Create local player
     this.localPlayer = {
       id: '', // Will be set after peer connection
-      name: playerName,
+      name: sanitizeDisplayName(playerName, 'Joueur', 20),
       color: null,
       isReady: false,
       isConnected: true,
@@ -364,7 +388,7 @@ export class RoomManager {
     // Create remote player from hello message
     this.remotePlayer = {
       id: message.senderId,
-      name: message.playerName,
+      name: sanitizeDisplayName(message.playerName, 'Adversaire', 20),
       color: null,
       isReady: false,
       isConnected: true,

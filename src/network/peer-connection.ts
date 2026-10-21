@@ -75,6 +75,10 @@ const RECONNECT_BASE_DELAY = 1000; // 1 second
 const RECONNECT_MAX_DELAY = 30000; // 30 seconds
 const MAX_RECONNECT_ATTEMPTS = 5;
 
+// Incoming message rate limit (protects against a flooding peer)
+const MESSAGE_WINDOW_MS = 5000;
+const MAX_MESSAGES_PER_WINDOW = 120;
+
 // ============================================
 // PeerConnection Class
 // ============================================
@@ -98,6 +102,11 @@ export class PeerConnection {
   private pingSequence: number = 0;
   private pendingPings: Map<number, number> = new Map();
   private latency: number = 0;
+
+  // Incoming message rate limiting
+  private messageWindowStart: number = 0;
+  private messageCount: number = 0;
+  private rateLimitWarned: boolean = false;
   
   // Reconnection management
   private reconnectAttempts: number = 0;
@@ -493,13 +502,21 @@ export class PeerConnection {
    */
   private handleIncomingData(data: unknown): void {
     if (typeof data !== 'string') {
-      console.warn('Received non-string data:', data);
+      console.warn('Received non-string data from peer:', typeof data);
       return;
     }
-    
+
+    if (this.isRateLimited()) {
+      if (!this.rateLimitWarned) {
+        console.warn('Peer message rate limit reached, dropping messages');
+        this.rateLimitWarned = true;
+      }
+      return;
+    }
+
     const message = deserializeMessage(data);
     if (!message) {
-      console.warn('Failed to deserialize message:', data);
+      console.warn('Failed to deserialize peer message');
       return;
     }
     
@@ -516,6 +533,22 @@ export class PeerConnection {
     
     // Forward other messages to callback
     this.onMessage?.(message);
+  }
+
+  /**
+   * Sliding-window rate limit for incoming peer messages.
+   */
+  private isRateLimited(): boolean {
+    const now = Date.now();
+
+    if (now - this.messageWindowStart >= MESSAGE_WINDOW_MS) {
+      this.messageWindowStart = now;
+      this.messageCount = 0;
+      this.rateLimitWarned = false;
+    }
+
+    this.messageCount++;
+    return this.messageCount > MAX_MESSAGES_PER_WINDOW;
   }
   
   /**

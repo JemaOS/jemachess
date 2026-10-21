@@ -10,6 +10,7 @@
  */
 
 import { store, GameStats } from '../../store';
+import { clampNumber, escapeHtml, sanitizeDisplayName } from '../../utils/security';
 
 /**
  * Navigation item configuration
@@ -70,10 +71,10 @@ export class LandingPage {
     try {
       const stored = localStorage.getItem('jemachess-user');
       if (stored) {
-        const data = JSON.parse(stored);
+        const data = JSON.parse(stored) as { username?: unknown; elo?: unknown };
         return {
-          username: data.username || 'Invité',
-          elo: data.elo !== undefined ? data.elo : 0
+          username: sanitizeDisplayName(data.username, 'Invité'),
+          elo: Math.round(clampNumber(data.elo, 0, 10000, 0))
         };
       }
     } catch (error) {
@@ -87,7 +88,10 @@ export class LandingPage {
    */
   private saveUserData(username: string, elo: number): void {
     try {
-      localStorage.setItem('jemachess-user', JSON.stringify({ username, elo }));
+      localStorage.setItem('jemachess-user', JSON.stringify({
+        username: sanitizeDisplayName(username, 'Invité'),
+        elo: Math.round(clampNumber(elo, 0, 10000, 0))
+      }));
     } catch (error) {
       console.warn('Failed to save user data:', error);
     }
@@ -106,7 +110,7 @@ export class LandingPage {
         <h3>Modifier le profil</h3>
         <div class="profile-form">
           <label for="username-input">Pseudo</label>
-          <input type="text" id="username-input" class="glass-input" value="${userData.username}" maxlength="20" placeholder="Entrez votre pseudo">
+          <input type="text" id="username-input" class="glass-input" value="${escapeHtml(userData.username)}" maxlength="20" placeholder="Entrez votre pseudo">
           <p class="input-hint">Votre pseudo sera sauvegardé localement</p>
         </div>
         <div class="profile-elo">
@@ -130,7 +134,7 @@ export class LandingPage {
     const usernameInput = modal.querySelector('#username-input') as HTMLInputElement;
 
     saveBtn?.addEventListener('click', () => {
-      const newUsername = usernameInput.value.trim() || 'Invité';
+      const newUsername = sanitizeDisplayName(usernameInput.value, 'Invité');
       this.saveUserData(newUsername, userData.elo);
       this.updateUserDisplay(newUsername, userData.elo);
       modal.remove();
@@ -545,8 +549,8 @@ export class LandingPage {
         </svg>
       </div>
       <div class="user-info">
-        <span class="user-name">${userData.username}</span>
-        <span class="user-rating">${userData.elo} ELO</span>
+        <span class="user-name">${escapeHtml(userData.username)}</span>
+        <span class="user-rating">${escapeHtml(userData.elo)} ELO</span>
       </div>
       <div class="edit-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">

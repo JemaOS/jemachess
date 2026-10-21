@@ -42,6 +42,7 @@ import { Tutorial } from './ui/components/Tutorial';
 import { ChessTimer, TIME_CONTROLS, type TimerConfig } from './utils/Timer';
 import { SoundManager, getSoundManager } from './utils/SoundManager';
 import { themeManager } from './utils/ThemeManager';
+import { escapeHtml, sanitizeDisplayName } from './utils/security';
 import {
   PieceTheme,
   Move,
@@ -183,7 +184,7 @@ export class App {
         <div class="session-info">
           <div class="info-row">
             <span class="label">Adversaire:</span>
-            <span class="value">${session.opponentName || 'Adversaire'}</span>
+            <span class="value">${escapeHtml(sanitizeDisplayName(session?.opponentName, 'Adversaire'))}</span>
           </div>
           <div class="info-row">
             <span class="label">Vous jouez:</span>
@@ -837,7 +838,10 @@ export class App {
    */
   private renderSettings(): void {
     const state = store.getState();
-    
+
+    // Avoid accumulating listeners when the screen is reopened.
+    this.settings?.destroy();
+
     // Create settings with container
     this.settings = new Settings(this.container, {
       pieceTheme: state.pieceTheme,
@@ -850,7 +854,11 @@ export class App {
     
     // Set up event handlers
     this.settings.onSettingsChange = (settings: GameSettings) => this.handleSettingsChange(settings);
-    this.settings.onClose = () => this.showScreen('landing');
+    this.settings.onClose = () => {
+      this.settings?.destroy();
+      this.settings = null;
+      this.showScreen('landing');
+    };
     
     // Render
     this.settings.render();
@@ -2625,7 +2633,7 @@ export class App {
     modal.innerHTML = `
       <div class="section-modal-content">
         <div class="section-modal-header">
-          <h3>${title}</h3>
+          <h3>${escapeHtml(title)}</h3>
           <button class="close-btn">✕</button>
         </div>
         ${content}

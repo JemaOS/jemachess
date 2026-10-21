@@ -5,7 +5,15 @@
  * communication in the chess game.
  */
 
-import type { Move, GameState, PieceColor, GameStatus, PieceType } from '../types';
+import { GameStatus, PieceColor, PieceType } from '../types';
+
+// Safety limits for untrusted peer messages
+const MAX_SENDER_ID_LENGTH = 200;
+const MAX_PLAYER_NAME_LENGTH = 50;
+const MAX_TEXT_LENGTH = 2000;
+const MAX_FEN_LENGTH = 200;
+const MAX_MOVE_HISTORY_LENGTH = 4096;
+const MAX_MESSAGE_SIZE = 512 * 1024;
 
 // ============================================
 // Message Types Enum
@@ -540,10 +548,13 @@ export function serializeMessage(message: GameMessage): string {
  * Deserialize a JSON string to a message
  */
 export function deserializeMessage(data: string): GameMessage | null {
+  // Reject oversized payloads before parsing them (DoS protection).
+  if (data.length > MAX_MESSAGE_SIZE) return null;
+
   try {
     const parsed = JSON.parse(data);
     if (isValidMessage(parsed)) {
-      return parsed as GameMessage;
+      return parsed;
     }
     return null;
   } catch {
@@ -551,28 +562,186 @@ export function deserializeMessage(data: string): GameMessage | null {
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isBoundedString(value: unknown, maxLength: number, allowEmpty = true): boolean {
+  return (
+    typeof value === 'string' &&
+    value.length <= maxLength &&
+    (allowEmpty || value.length > 0)
+  );
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function isNonNegativeInteger(value: unknown, max = 1000000): value is number {
+  return isFiniteNumber(value) && Number.isInteger(value) && value >= 0 && value <= max;
+}
+
+function isColor(value: unknown): value is PieceColor {
+  return value === PieceColor.WHITE || value === PieceColor.BLACK;
+}
+
+function isGameStatus(value: unknown): value is GameStatus {
+  return (
+    typeof value === 'string' &&
+    (Object.values(GameStatus) as string[]).includes(value)
+  );
+}
+
+function isPieceType(value: unknown): value is PieceType {
+  return (
+    typeof value === 'string' &&
+    (Object.values(PieceType) as string[]).includes(value)
+  );
+}
+
+function isFen(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length === 0 || value.length > MAX_FEN_LENGTH) {
+    return false;
+  }
+
+  const fields = value.split(' ');
+  return fields.length === 6;
+}
+
+function isCoordinate(value: unknown): value is { file: number; rank: number } {
+  return (
+    isRecord(value) &&
+    isFiniteNumber(value.file) &&
+    isFiniteNumber(value.rank) &&
+    Number.isInteger(value.file) &&
+    Number.isInteger(value.rank) &&
+    value.file >= 0 &&
+    value.file < 8 &&
+    value.rank >= 0 &&
+    value.rank < 8
+  );
+}
+
+function isMovePayload(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  if (!isCoordinate(value.from) || !isCoordinate(value.to)) return false;
+  if (value.from.file === value.to.file && value.from.rank === value.to.rank) return false;
+  if (value.promotion !== undefined && !isPieceType(value.promotion)) return false;
+  return true;
+}
+
 /**
  * Type guard to check if an object is a valid message
+ *
+ * The base fields are always checked, then the payload of each message
+ * type. This prevents malformed peer messages from crashing the game.
  */
 export function isValidMessage(obj: unknown): obj is GameMessage {
-  if (typeof obj !== 'object' || obj === null) {
-    return false;
-  }
-  
-  const message = obj as Record<string, unknown>;
-  
-  // Check required base fields
+  if (!isRecord(obj)) return false;
+
+  const message = obj;
+  const type = message.type as MessageType;
+
+  // Required base fields
   if (typeof message.type !== 'string') return false;
-  if (typeof message.timestamp !== 'number') return false;
-  if (typeof message.senderId !== 'string') return false;
-  
-  // Check if type is a valid MessageType
-  const validTypes = Object.values(MessageType);
-  if (!validTypes.includes(message.type as MessageType)) {
-    return false;
+  if (!(Object.values(MessageType) as string[]).includes(message.type)) return false;
+  if (!isFiniteNumber(message.timestamp) || message.timestamp < 0) return false;
+  if (!isBoundedString(message.senderId, MAX_SENDER_ID_LENGTH, false)) return false;
+
+  switch (type) {
+    case MessageType.HELLO:
+      return (
+        isBoundedString(message.playerName, MAX_PLAYER_NAME_LENGTH) &&
+        isBoundedString(message.clientVersion, MAX_PLAYER_NAME_LENGTH)
+      );
+
+    case MessageType.READY:
+      return isColor(message.playerColor);
+
+    case MessageType.GAME_START:
+      return (
+        isColor(message.hostColor) &&
+        isColor(message.guestColor) &&
+        isFen(message.initialFen) &&
+        isRecord(message.timeControl) &&
+        isFiniteNumber(message.timeControl.initial) &&
+        message.timeControl.initial >= 0 &&
+        message.timeControl.initial <= 1000000000 &&
+        isFiniteNumber(message.timeControl.increment) &&
+        message.timeControl.increment >= 0 &&
+        message.timeControl.increment <= 1000000000
+      );
+
+    case MessageType.GAME_END:
+      return (
+        isGameStatus(message.status) &&
+        (message.winner === null || isColor(message.winner)) &&
+        isBoundedString(message.reason, MAX_TEXT_LENGTH)
+      );
+
+    case MessageType.RESIGN:
+      return isColor(message.resigningColor);
+
+    case MessageType.DRAW_OFFER:
+      return isColor(message.offeringColor);
+
+    case MessageType.DRAW_ACCEPT:
+    case MessageType.DRAW_DECLINE:
+      return true;
+
+    case MessageType.MOVE:
+      return (
+        isMovePayload(message.move) &&
+        isNonNegativeInteger(message.moveNumber) &&
+        isFen(message.fen)
+      );
+
+    case MessageType.MOVE_ACK:
+      return isNonNegativeInteger(message.moveNumber) && isFen(message.fen);
+
+    case MessageType.MOVE_REJECT:
+      return (
+        isNonNegativeInteger(message.moveNumber) &&
+        isBoundedString(message.reason, MAX_TEXT_LENGTH) &&
+        isFen(message.expectedFen)
+      );
+
+    case MessageType.STATE_REQUEST:
+      return isNonNegativeInteger(message.lastKnownMoveNumber);
+
+    case MessageType.STATE_RESPONSE:
+      return (
+        isFen(message.fen) &&
+        Array.isArray(message.moveHistory) &&
+        message.moveHistory.length <= MAX_MOVE_HISTORY_LENGTH &&
+        message.moveHistory.every(isMovePayload) &&
+        isNonNegativeInteger(message.currentMoveNumber) &&
+        isFiniteNumber(message.whiteTime) &&
+        message.whiteTime >= 0 &&
+        message.whiteTime <= 1000000000000 &&
+        isFiniteNumber(message.blackTime) &&
+        message.blackTime >= 0 &&
+        message.blackTime <= 1000000000000 &&
+        isGameStatus(message.status)
+      );
+
+    case MessageType.CHAT:
+      return isBoundedString(message.content, MAX_TEXT_LENGTH);
+
+    case MessageType.PING:
+      return isNonNegativeInteger(message.sequence);
+
+
+    case MessageType.PONG:
+      return (
+        isNonNegativeInteger(message.sequence) &&
+        isFiniteNumber(message.receivedTimestamp)
+      );
+
+    default:
+      return false;
   }
-  
-  return true;
 }
 
 /**

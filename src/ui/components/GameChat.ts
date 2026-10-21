@@ -12,6 +12,7 @@ import {
   ChatMessage as NetworkChatMessage,
   createChatMessage 
 } from '../../network/messages';
+import { clampText, escapeHtml, sanitizeDisplayName } from '../../utils/security';
 
 // ============================================
 // Types
@@ -48,6 +49,13 @@ export class GameChat {
   }
   
   // ============================================
+  // Constants
+  // ============================================
+
+  private static readonly MAX_MESSAGE_LENGTH = 500;
+  private static readonly MAX_NAME_LENGTH = 30;
+
+  // ============================================
   // Public Methods
   // ============================================
   
@@ -60,8 +68,8 @@ export class GameChat {
     remotePlayerName: string
   ): void {
     this.peerConnection = peerConnection;
-    this.localPlayerName = localPlayerName;
-    this.remotePlayerName = remotePlayerName;
+    this.localPlayerName = sanitizeDisplayName(localPlayerName, 'Joueur', GameChat.MAX_NAME_LENGTH);
+    this.remotePlayerName = sanitizeDisplayName(remotePlayerName, 'Adversaire', GameChat.MAX_NAME_LENGTH);
     this.messages = [];
     this.unreadCount = 0;
     
@@ -184,13 +192,14 @@ export class GameChat {
    * Send a message
    */
   sendMessage(content: string): void {
-    if (!this.peerConnection || !content.trim()) return;
+    const trimmed = clampText(content, GameChat.MAX_MESSAGE_LENGTH).trim();
+    if (!this.peerConnection || !trimmed) return;
     
     const message: ChatMessage = {
       id: this.generateMessageId(),
       senderId: this.peerConnection.getPeerId(),
       senderName: this.localPlayerName,
-      content: content.trim(),
+      content: trimmed,
       timestamp: Date.now(),
       isOwn: true
     };
@@ -201,7 +210,7 @@ export class GameChat {
     // Send via peer connection
     const networkMessage = createChatMessage(
       this.peerConnection.getPeerId(),
-      content.trim()
+      trimmed
     );
     this.peerConnection.send(networkMessage);
     
@@ -239,12 +248,17 @@ export class GameChat {
    * Handle incoming chat message
    */
   private handleIncomingMessage(networkMessage: NetworkChatMessage): void {
+    if (typeof networkMessage.content !== 'string') return;
+
+    const content = clampText(networkMessage.content, GameChat.MAX_MESSAGE_LENGTH);
+    if (!content.trim()) return;
+
     const message: ChatMessage = {
       id: this.generateMessageId(),
-      senderId: networkMessage.senderId,
+      senderId: typeof networkMessage.senderId === 'string' ? networkMessage.senderId.slice(0, 200) : 'peer',
       senderName: this.remotePlayerName,
-      content: networkMessage.content,
-      timestamp: networkMessage.timestamp,
+      content,
+      timestamp: Number.isFinite(networkMessage.timestamp) ? networkMessage.timestamp : Date.now(),
       isOwn: false
     };
     
@@ -412,8 +426,6 @@ export class GameChat {
    * Escape HTML
    */
   private escapeHtml(text: string): string {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    return escapeHtml(text);
   }
 }
