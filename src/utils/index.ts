@@ -61,3 +61,13 @@ export {
   type DeviceType,
   type ResponsiveState
 } from './ResponsiveManager';
+
+// Theme management (system light/dark sync)
+export {
+  themeManager,
+  initTheme,
+  detectPlatform,
+  type ThemePreference,
+  type ResolvedTheme,
+  type ThemeListener
+} from './ThemeManager';

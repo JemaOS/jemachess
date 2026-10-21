@@ -41,6 +41,7 @@ import { GameChat } from './ui/components/GameChat';
 import { Tutorial } from './ui/components/Tutorial';
 import { ChessTimer, TIME_CONTROLS, type TimerConfig } from './utils/Timer';
 import { SoundManager, getSoundManager } from './utils/SoundManager';
+import { themeManager } from './utils/ThemeManager';
 import {
   PieceTheme,
   Move,
@@ -233,7 +234,7 @@ export class App {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.9);
+        background: var(--backdrop-strong);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -241,27 +242,29 @@ export class App {
       }
       
       .reconnect-modal-content {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        background: var(--color-background-gradient);
+        border: 1px solid var(--border-subtle);
         border-radius: 16px;
         padding: 32px;
         max-width: 400px;
         width: 90%;
         text-align: center;
+        box-shadow: var(--shadow-lg);
       }
       
       .reconnect-modal h3 {
         margin: 0 0 16px 0;
-        color: #fff;
+        color: var(--color-text-primary);
         font-size: 1.5rem;
       }
       
       .reconnect-modal p {
-        color: #aaa;
+        color: var(--color-text-secondary);
         margin: 0 0 16px 0;
       }
       
       .session-info {
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         border-radius: 8px;
         padding: 16px;
         margin: 16px 0;
@@ -274,16 +277,16 @@ export class App {
       }
       
       .info-row .label {
-        color: #888;
+        color: var(--color-text-muted);
       }
       
       .info-row .value {
-        color: #fff;
+        color: var(--color-text-primary);
         font-weight: 500;
       }
       
       .reconnect-question {
-        color: #fff !important;
+        color: var(--color-text-primary) !important;
         font-weight: 500;
       }
       
@@ -305,22 +308,22 @@ export class App {
       }
       
       .reconnect-btn.yes {
-        background: linear-gradient(135deg, #7d82ea 0%, #5356a8 100%);
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
         color: #fff;
       }
       
       .reconnect-btn.yes:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(125, 130, 234, 0.4);
+        box-shadow: var(--shadow-glow);
       }
       
       .reconnect-btn.no {
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
+        background: var(--surface-3);
+        color: var(--color-text-primary);
       }
       
       .reconnect-btn.no:hover {
-        background: rgba(255, 255, 255, 0.15);
+        background: var(--surface-4);
       }
     `;
     document.head.appendChild(style);
@@ -632,7 +635,7 @@ export class App {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.8);
+        background: var(--backdrop-strong);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -640,17 +643,19 @@ export class App {
       }
       
       .difficulty-modal-content {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        background: var(--color-background-gradient);
+        border: 1px solid var(--border-subtle);
         border-radius: 16px;
         padding: 32px;
         max-width: 400px;
         width: 90%;
+        box-shadow: var(--shadow-lg);
       }
       
       .difficulty-modal h3 {
         margin: 0 0 24px 0;
         text-align: center;
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .difficulty-options {
@@ -664,17 +669,17 @@ export class App {
         align-items: center;
         gap: 16px;
         padding: 16px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         border: 2px solid transparent;
         border-radius: 12px;
         cursor: pointer;
         transition: all 0.2s;
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .difficulty-option:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.2);
+        background: var(--surface-3);
+        border-color: var(--border-strong);
       }
       
       .difficulty-icon {
@@ -683,13 +688,13 @@ export class App {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(125, 130, 234, 0.15);
+        background: rgba(var(--color-primary-rgb), 0.15);
         border-radius: 12px;
         flex-shrink: 0;
       }
       
       .difficulty-icon .star-rating {
-        color: #7d82ea;
+        color: var(--color-primary);
         font-size: 14px;
         letter-spacing: 2px;
       }
@@ -722,11 +727,11 @@ export class App {
       
       .difficulty-option .rating {
         font-size: 12px;
-        color: #888;
+        color: var(--color-text-muted);
       }
       
       .difficulty-option:hover .difficulty-icon {
-        background: rgba(83, 86, 168, 0.25);
+        background: rgba(var(--color-primary-rgb), 0.25);
       }
     `;
     document.head.appendChild(style);
@@ -794,6 +799,7 @@ export class App {
       showLegalMoves: true,
       showCoordinates: state.showCoordinates,
       autoQueen: state.autoQueen,
+      theme: themeManager.getPreference(),
     });
     
     // Set up event handlers
@@ -839,6 +845,7 @@ export class App {
       showLegalMoves: true,
       showCoordinates: state.showCoordinates,
       autoQueen: state.autoQueen,
+      theme: themeManager.getPreference(),
     });
     
     // Set up event handlers
@@ -1187,13 +1194,13 @@ export class App {
         display: flex;
         align-items: center;
         gap: 8px;
-        background: linear-gradient(135deg, #7d82ea 0%, #5356a8 100%) !important;
-        color: white !important;
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%) !important;
+        color: #fff !important;
       }
       
       .hint-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(125, 130, 234, 0.4);
+        box-shadow: var(--shadow-glow);
       }
       
       .hint-key {
@@ -1212,7 +1219,6 @@ export class App {
         background: rgba(255, 255, 255, 0.2);
         border-radius: 50%;
       }
-      
       /* Responsive hint button - hide text on small screens */
       @media (max-width: 768px) {
         .hint-btn .hint-text,
@@ -2181,6 +2187,11 @@ export class App {
     if (settings.pieceTheme) {
       store.setTheme(settings.pieceTheme);
     }
+
+    // Light / dark / system (keeps Windows and ChromeOS in sync)
+    if (settings.theme) {
+      themeManager.setPreference(settings.theme);
+    }
     
     // Update sound manager
     this.soundManager.setEnabled(settings.soundEnabled);
@@ -2671,7 +2682,7 @@ export class App {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.85);
+        background: var(--backdrop-strong);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -2680,13 +2691,14 @@ export class App {
       }
       
       .section-modal-content {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        background: var(--color-background-gradient);
+        border: 1px solid var(--border-subtle);
         border-radius: 16px;
         max-width: 500px;
         width: 100%;
         max-height: 80vh;
         overflow-y: auto;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        box-shadow: var(--shadow-lg);
       }
       
       .section-modal-header {
@@ -2694,19 +2706,19 @@ export class App {
         justify-content: space-between;
         align-items: center;
         padding: 20px 24px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--divider);
       }
       
       .section-modal-header h3 {
         margin: 0;
-        color: #fff;
+        color: var(--color-text-primary);
         font-size: 1.5rem;
       }
       
       .section-modal .close-btn {
         background: none;
         border: none;
-        color: #888;
+        color: var(--color-text-muted);
         font-size: 1.5rem;
         cursor: pointer;
         padding: 0;
@@ -2714,7 +2726,7 @@ export class App {
       }
       
       .section-modal .close-btn:hover {
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .section-content {
@@ -2733,14 +2745,14 @@ export class App {
         align-items: center;
         gap: 16px;
         padding: 16px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         border-radius: 12px;
         cursor: pointer;
         transition: all 0.2s;
       }
       
       .puzzle-category:hover, .learn-category:hover, .watch-category:hover, .social-category:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--surface-3);
         transform: translateX(4px);
       }
       
@@ -2756,7 +2768,7 @@ export class App {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(83, 86, 168, 0.15);
+        background: rgba(var(--color-primary-rgb), 0.15);
         border-radius: 12px;
         flex-shrink: 0;
       }
@@ -2769,7 +2781,7 @@ export class App {
       .learn-arrow {
         width: 20px;
         height: 20px;
-        color: #7d82ea;
+        color: var(--color-primary);
         flex-shrink: 0;
         opacity: 0.6;
         transition: opacity 0.2s, transform 0.2s;
@@ -2786,13 +2798,13 @@ export class App {
       
       .puzzle-info h4, .learn-info h4, .watch-info h4, .social-info h4 {
         margin: 0 0 4px 0;
-        color: #fff;
+        color: var(--color-text-primary);
         font-size: 1rem;
       }
       
       .puzzle-info p, .learn-info p, .watch-info p, .social-info p {
         margin: 0;
-        color: #888;
+        color: var(--color-text-muted);
         font-size: 0.85rem;
       }
       
@@ -2811,7 +2823,7 @@ export class App {
       .puzzle-stats, .learn-progress {
         margin-top: 24px;
         padding-top: 24px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid var(--divider);
       }
       
       .puzzle-stats {
@@ -2827,18 +2839,18 @@ export class App {
         display: block;
         font-size: 1.5rem;
         font-weight: bold;
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .stat-label {
         font-size: 0.75rem;
-        color: #888;
+        color: var(--color-text-muted);
       }
       
       .progress-bar {
         width: 60px;
         height: 6px;
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--surface-3);
         border-radius: 3px;
         overflow: hidden;
       }
@@ -2846,13 +2858,13 @@ export class App {
       .progress-bar span {
         display: block;
         height: 100%;
-        background: linear-gradient(90deg, #667eea, #764ba2);
+        background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
         border-radius: 3px;
       }
       
       .learn-progress h4 {
         margin: 0 0 16px 0;
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .overall-progress {
@@ -2865,27 +2877,27 @@ export class App {
         width: 60px;
         height: 60px;
         border-radius: 50%;
-        background: conic-gradient(#667eea 0%, rgba(255,255,255,0.1) 0%);
+        background: conic-gradient(var(--color-primary) 0%, var(--surface-3) 0%);
         display: flex;
         align-items: center;
         justify-content: center;
       }
       
       .progress-circle span {
-        background: #1a1a2e;
+        background: var(--panel-bg-soft);
         width: 48px;
         height: 48px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #fff;
+        color: var(--color-text-primary);
         font-weight: bold;
       }
       
       .overall-progress p {
         margin: 0;
-        color: #888;
+        color: var(--color-text-muted);
         font-size: 0.9rem;
       }
       
@@ -2898,24 +2910,24 @@ export class App {
       
       .news-item {
         padding: 16px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         border-radius: 12px;
       }
       
       .news-date {
         font-size: 0.75rem;
-        color: #667eea;
+        color: var(--color-primary);
         margin-bottom: 8px;
       }
       
       .news-item h4 {
         margin: 0 0 8px 0;
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .news-item p {
         margin: 0;
-        color: #888;
+        color: var(--color-text-muted);
         font-size: 0.9rem;
       }
       
@@ -2925,7 +2937,7 @@ export class App {
         align-items: center;
         gap: 16px;
         padding: 20px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         border-radius: 12px;
         margin-bottom: 20px;
       }
@@ -2936,12 +2948,12 @@ export class App {
       
       .profile-info h4 {
         margin: 0 0 4px 0;
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .profile-info p {
         margin: 0;
-        color: #888;
+        color: var(--color-text-muted);
         font-size: 0.85rem;
       }
       
@@ -2954,7 +2966,7 @@ export class App {
       
       .tournament-item {
         padding: 16px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         border-radius: 12px;
         display: flex;
         flex-direction: column;
@@ -2963,7 +2975,7 @@ export class App {
       
       .tournament-status {
         font-size: 0.75rem;
-        color: #888;
+        color: var(--color-text-muted);
       }
       
       .tournament-item.active .tournament-status {
@@ -2972,18 +2984,18 @@ export class App {
       
       .tournament-item h4 {
         margin: 0;
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .tournament-item p {
         margin: 0;
-        color: #888;
+        color: var(--color-text-muted);
         font-size: 0.85rem;
       }
       
       .join-btn, .create-btn {
         padding: 8px 16px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
         border: none;
         border-radius: 8px;
         color: #fff;
@@ -3016,15 +3028,15 @@ export class App {
       .ranking-tabs .tab {
         flex: 1;
         padding: 10px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         border: none;
         border-radius: 8px;
-        color: #888;
+        color: var(--color-text-muted);
         cursor: pointer;
       }
       
       .ranking-tabs .tab.active {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
         color: #fff;
       }
       
@@ -3038,7 +3050,7 @@ export class App {
         display: flex;
         align-items: center;
         padding: 12px 16px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         border-radius: 8px;
       }
       
@@ -3057,7 +3069,7 @@ export class App {
       .ranking-item .rank {
         width: 30px;
         font-weight: bold;
-        color: #888;
+        color: var(--color-text-muted);
       }
       
       .ranking-item.gold .rank { color: #ffd700; }
@@ -3066,39 +3078,39 @@ export class App {
       
       .ranking-item .player {
         flex: 1;
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .ranking-item .rating {
         font-weight: bold;
-        color: #667eea;
+        color: var(--color-primary);
       }
       
       .your-ranking {
         display: flex;
         align-items: center;
         padding: 12px 16px;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+        background: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.2) 0%, rgba(var(--color-primary-rgb), 0.1) 100%);
         border-radius: 8px;
         margin-top: 16px;
-        border: 1px solid rgba(102, 126, 234, 0.3);
+        border: 1px solid rgba(var(--color-primary-rgb), 0.3);
       }
       
       .your-ranking .rank {
         width: 30px;
         font-weight: bold;
-        color: #667eea;
+        color: var(--color-primary);
       }
       
       .your-ranking .player {
         flex: 1;
-        color: #fff;
+        color: var(--color-text-primary);
         font-weight: 500;
       }
       
       .your-ranking .rating {
         font-weight: bold;
-        color: #667eea;
+        color: var(--color-primary);
       }
     `;
     document.head.appendChild(style);

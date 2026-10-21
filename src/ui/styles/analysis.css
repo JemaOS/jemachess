@@ -4,14 +4,14 @@
 
 /* Analysis Panel Styles */
 .analysis-panel {
-  background: rgba(30, 30, 30, 0.95);
+  background: var(--panel-bg);
   border-radius: 8px;
   padding: 16px;
-  color: #fff;
+  color: var(--color-text-primary);
   font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
   min-width: 200px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
 }
 
 .analysis-header {
@@ -25,7 +25,7 @@
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  color: #ccc;
+  color: var(--color-text-secondary);
 }
 
 .analysis-controls {
@@ -34,23 +34,23 @@
 }
 
 .analysis-btn {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-3);
   border: none;
   border-radius: 4px;
   padding: 6px;
   cursor: pointer;
-  color: #ccc;
+  color: var(--color-text-secondary);
   transition: all 0.2s;
 }
 
 .analysis-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: var(--surface-4);
+  color: var(--color-text-primary);
 }
 
 .analysis-btn.active {
-  background: rgba(125, 130, 234, 0.3);
-  color: #7d82ea;
+  background: rgba(var(--color-primary-rgb), 0.3);
+  color: var(--color-primary);
 }
 
 /* Evaluation Bar */
@@ -64,7 +64,7 @@
 .eval-bar-container {
   flex: 1;
   height: 24px;
-  background: #333;
+  background: var(--surface-3);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -99,16 +99,16 @@
 }
 
 .eval-value.positive {
-  color: #f0f0f0;
+  color: var(--color-text-primary);
 }
 
 .eval-value.negative {
-  color: #888;
+  color: var(--color-text-muted);
 }
 
 /* Best Move Section */
 .best-move-section {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-1);
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 12px;
@@ -116,7 +116,7 @@
 
 .best-move-label {
   font-size: 11px;
-  color: #888;
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
@@ -125,17 +125,17 @@
 .best-move-value {
   font-size: 16px;
   font-weight: 600;
-  color: #7d82ea;
+  color: var(--color-primary);
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .best-move-value:hover {
-  color: #9a9ef0;
+  color: var(--color-primary-light);
 }
 
 .best-move-value.no-move {
-  color: #666;
+  color: var(--color-text-muted);
   cursor: default;
 }
 
@@ -143,11 +143,11 @@
   display: flex;
   justify-content: space-between;
   font-size: 11px;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .status-info.analyzing {
-  color: #fc6;
+  color: var(--color-warning-text);
 }
 
 /* Move Quality Badges */
@@ -217,7 +217,7 @@
 }
 
 .arrow-suggestion {
-  stroke: #7d82ea;
+  stroke: var(--color-primary);
   stroke-opacity: 0.85;
 }
 
@@ -243,7 +243,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--backdrop-strong);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -257,12 +257,12 @@
 }
 
 .difficulty-selector {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: var(--color-background-gradient);
   border-radius: 16px;
   padding: 32px;
   max-width: 500px;
   width: 90%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-lg);
   animation: slideUp 0.3s ease;
 }
 
@@ -285,12 +285,12 @@
 .difficulty-header h2 {
   margin: 0 0 8px 0;
   font-size: 24px;
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .difficulty-header p {
   margin: 0;
-  color: #888;
+  color: var(--color-text-muted);
   font-size: 14px;
 }
 
@@ -306,7 +306,7 @@
   align-items: center;
   gap: 16px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-1);
   border: 2px solid transparent;
   border-radius: 12px;
   cursor: pointer;
@@ -314,8 +314,8 @@
 }
 
 .difficulty-option:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--surface-3);
+  border-color: var(--border-subtle);
 }
 
 .difficulty-option.selected {
@@ -330,7 +330,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-3);
   border-radius: 12px;
 }
 
@@ -341,19 +341,19 @@
 .difficulty-name {
   font-size: 18px;
   font-weight: 600;
-  color: #fff;
+  color: var(--color-text-primary);
   margin-bottom: 4px;
 }
 
 .difficulty-description {
   font-size: 13px;
-  color: #888;
+  color: var(--color-text-muted);
   margin-bottom: 4px;
 }
 
 .difficulty-rating {
   font-size: 12px;
-  color: #666;
+  color: var(--color-text-muted);
   font-family: 'Courier New', monospace;
 }
 
@@ -391,22 +391,22 @@
 }
 
 .cancel-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: #888;
+  background: var(--surface-3);
+  color: var(--color-text-secondary);
 }
 
 .cancel-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background: var(--surface-4);
+  color: var(--color-text-primary);
 }
 
 .start-btn {
-  background: linear-gradient(135deg, #7d82ea 0%, #6366c0 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: #fff;
 }
 
 .start-btn:hover {
-  background: linear-gradient(135deg, #9a9ef0 0%, #7d82ea 100%);
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
   transform: translateY(-1px);
 }
 
@@ -416,16 +416,16 @@
 
 /* Game Review */
 .game-review {
-  background: rgba(30, 30, 30, 0.95);
+  background: var(--panel-bg);
   border-radius: 8px;
   padding: 16px;
-  color: #fff;
+  color: var(--color-text-primary);
   font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
   max-width: 320px;
   max-height: 80vh;
   overflow-y: auto;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
 }
 
 .review-header {
@@ -444,14 +444,14 @@
 .review-close-btn {
   background: none;
   border: none;
-  color: #888;
+  color: var(--color-text-muted);
   cursor: pointer;
   padding: 4px;
   transition: color 0.2s;
 }
 
 .review-close-btn:hover {
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .review-controls {
@@ -462,18 +462,18 @@
 }
 
 .review-btn {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-3);
   border: none;
   border-radius: 6px;
   padding: 8px 12px;
-  color: #ccc;
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .review-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: var(--surface-4);
+  color: var(--color-text-primary);
 }
 
 .review-btn:disabled {
@@ -486,7 +486,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-1);
   border-radius: 6px;
   margin-bottom: 16px;
 }
@@ -501,18 +501,18 @@
 }
 
 .evaluation.positive {
-  color: #f0f0f0;
+  color: var(--color-text-primary);
 }
 
 .evaluation.negative {
-  color: #888;
+  color: var(--color-text-muted);
 }
 
 .review-move-list {
   max-height: 200px;
   overflow-y: auto;
   margin-bottom: 16px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--surface-sunken);
   border-radius: 6px;
   padding: 8px;
 }
@@ -527,16 +527,16 @@
 }
 
 .move-row:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-3);
 }
 
 .move-row.active {
-  background: rgba(100, 150, 255, 0.2);
+  background: rgba(var(--color-primary-rgb), 0.2);
 }
 
 .move-row .move-num {
   width: 30px;
-  color: #666;
+  color: var(--color-text-muted);
   font-size: 12px;
 }
 
@@ -556,23 +556,23 @@
 .review-analysis {
   text-align: center;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-1);
   border-radius: 6px;
   margin-bottom: 16px;
 }
 
 .analysis-status {
-  color: #888;
+  color: var(--color-text-muted);
   font-size: 13px;
   margin-bottom: 12px;
 }
 
 .analysis-status.analyzing {
-  color: #fc6;
+  color: var(--color-warning-text);
 }
 
 .analyze-game-btn {
-  background: linear-gradient(135deg, #7d82ea 0%, #6366c0 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   border: none;
   border-radius: 6px;
   padding: 10px 20px;
@@ -595,7 +595,7 @@
 .review-summary h4 {
   margin: 0 0 12px 0;
   font-size: 14px;
-  color: #ccc;
+  color: var(--color-text-secondary);
 }
 
 .summary-stats {
@@ -605,7 +605,7 @@
 }
 
 .stat-item {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-1);
   padding: 8px;
   border-radius: 4px;
   text-align: center;
@@ -618,7 +618,7 @@
 
 .stat-label {
   font-size: 11px;
-  color: #888;
+  color: var(--color-text-muted);
 }
 
 /* Analysis Container */
@@ -645,15 +645,15 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: rgba(125, 130, 234, 0.2);
-  border: 1px solid rgba(125, 130, 234, 0.4);
-  color: #7d82ea;
+  background: rgba(var(--color-primary-rgb), 0.2);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.4);
+  color: var(--color-primary);
   transition: all 0.2s;
 }
 
 .hint-btn:hover {
-  background: rgba(125, 130, 234, 0.3);
-  border-color: rgba(125, 130, 234, 0.6);
+  background: rgba(var(--color-primary-rgb), 0.3);
+  border-color: rgba(var(--color-primary-rgb), 0.6);
 }
 
 /* AI Thinking Indicator */
@@ -664,7 +664,7 @@
   padding: 8px 16px;
   background: rgba(255, 200, 100, 0.2);
   border-radius: 8px;
-  color: #fc6;
+  color: var(--color-warning-text);
   font-size: 14px;
 }
 
@@ -676,7 +676,7 @@
 .ai-thinking-dots span {
   width: 6px;
   height: 6px;
-  background: #fc6;
+  background: var(--color-warning-text);
   border-radius: 50%;
   animation: thinking 1.4s infinite ease-in-out both;
 }
@@ -704,7 +704,7 @@
   align-items: center;
   gap: 4px;
   padding: 4px 12px;
-  background: linear-gradient(135deg, #7d82ea 0%, #6366c0 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   border-radius: 16px;
   color: #fff;
   font-size: 12px;

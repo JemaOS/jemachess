@@ -150,12 +150,13 @@ export class AnalysisPanel {
     style.id = styleId;
     style.textContent = `
       .analysis-panel {
-        background: rgba(30, 30, 30, 0.95);
+        background: var(--panel-bg);
         border-radius: 8px;
         padding: 16px;
-        color: #fff;
+        color: var(--color-text-primary);
         font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
         min-width: 200px;
+        border: 1px solid var(--border-subtle);
       }
       
       .analysis-header {
@@ -169,7 +170,7 @@ export class AnalysisPanel {
         margin: 0;
         font-size: 14px;
         font-weight: 600;
-        color: #ccc;
+        color: var(--color-text-secondary);
       }
       
       .analysis-controls {
@@ -178,23 +179,23 @@ export class AnalysisPanel {
       }
       
       .analysis-btn {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--surface-3);
         border: none;
         border-radius: 4px;
         padding: 6px;
         cursor: pointer;
-        color: #ccc;
+        color: var(--color-text-secondary);
         transition: all 0.2s;
       }
       
       .analysis-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
-        color: #fff;
+        background: var(--surface-4);
+        color: var(--color-text-primary);
       }
       
       .analysis-btn.active {
-        background: rgba(100, 200, 100, 0.3);
-        color: #6c6;
+        background: rgba(var(--color-primary-rgb), 0.3);
+        color: var(--color-primary);
       }
       
       .evaluation-section {
@@ -207,7 +208,7 @@ export class AnalysisPanel {
       .eval-bar-container {
         flex: 1;
         height: 24px;
-        background: #333;
+        background: var(--surface-3);
         border-radius: 4px;
         overflow: hidden;
       }
@@ -242,15 +243,15 @@ export class AnalysisPanel {
       }
       
       .eval-value.positive {
-        color: #f0f0f0;
+        color: var(--color-text-primary);
       }
       
       .eval-value.negative {
-        color: #888;
+        color: var(--color-text-muted);
       }
       
       .best-move-section {
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         border-radius: 6px;
         padding: 12px;
         margin-bottom: 12px;
@@ -258,7 +259,7 @@ export class AnalysisPanel {
       
       .best-move-label {
         font-size: 11px;
-        color: #888;
+        color: var(--color-text-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 4px;
@@ -267,17 +268,18 @@ export class AnalysisPanel {
       .best-move-value {
         font-size: 16px;
         font-weight: 600;
-        color: #6c6;
+        color: var(--color-success-text);
         cursor: pointer;
         transition: color 0.2s;
       }
       
       .best-move-value:hover {
-        color: #8e8;
+        color: var(--color-success-text);
+        text-decoration: underline;
       }
       
       .best-move-value.no-move {
-        color: #666;
+        color: var(--color-text-muted);
         cursor: default;
       }
       
@@ -285,11 +287,11 @@ export class AnalysisPanel {
         display: flex;
         justify-content: space-between;
         font-size: 11px;
-        color: #666;
+        color: var(--color-text-muted);
       }
       
       .status-info.analyzing {
-        color: #fc6;
+        color: var(--color-warning-text);
       }
       
       /* Move quality badge */

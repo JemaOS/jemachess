@@ -7,6 +7,7 @@
 
 import { PieceTheme } from '../../types';
 import { PieceRenderer } from './Piece';
+import { themeManager, type ThemePreference } from '../../utils/ThemeManager';
 
 /**
  * Game settings interface
@@ -17,6 +18,7 @@ export interface GameSettings {
   showLegalMoves: boolean;
   showCoordinates: boolean;
   autoQueen: boolean;
+  theme: ThemePreference;
 }
 
 /**
@@ -28,6 +30,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   showLegalMoves: true,
   showCoordinates: true,
   autoQueen: false,
+  theme: 'system',
 };
 
 /**
@@ -44,7 +47,11 @@ export class Settings {
 
   constructor(container: HTMLElement, initialSettings?: Partial<GameSettings>) {
     this.container = container;
-    this.settings = { ...DEFAULT_SETTINGS, ...initialSettings };
+    this.settings = {
+      ...DEFAULT_SETTINGS,
+      theme: themeManager.getPreference(),
+      ...initialSettings,
+    };
   }
 
   /**
@@ -83,7 +90,25 @@ export class Settings {
 
     // Appearance Section
     const appearanceSection = this.createSection('Apparence');
-    
+
+    // Interface theme (system / light / dark)
+    const interfaceThemeOption = document.createElement('div');
+    interfaceThemeOption.className = 'settings-section';
+
+    const interfaceThemeLabel = document.createElement('div');
+    interfaceThemeLabel.className = 'settings-label';
+    interfaceThemeLabel.textContent = 'Thème de l\'interface';
+    interfaceThemeOption.appendChild(interfaceThemeLabel);
+
+    const interfaceThemeDescription = document.createElement('div');
+    interfaceThemeDescription.className = 'settings-description';
+    interfaceThemeDescription.textContent =
+      'Suit automatiquement le mode clair/sombre de Windows, ChromeOS, macOS ou Linux.';
+    interfaceThemeOption.appendChild(interfaceThemeDescription);
+
+    interfaceThemeOption.appendChild(this.createThemeModeSelector());
+    appearanceSection.appendChild(interfaceThemeOption);
+
     // Piece Theme
     const themeOption = document.createElement('div');
     themeOption.className = 'settings-section';
@@ -216,6 +241,70 @@ export class Settings {
     option.appendChild(toggle);
 
     return option;
+  }
+
+  /**
+   * Creates the interface theme selector (system / light / dark)
+   */
+  private createThemeModeSelector(): HTMLElement {
+    const selector = document.createElement('div');
+    selector.className = 'theme-mode-selector';
+    selector.setAttribute('role', 'radiogroup');
+    selector.setAttribute('aria-label', 'Thème de l\'interface');
+
+    const modes: { value: ThemePreference; label: string; hint?: string }[] = [
+      { value: 'system', label: 'Système', hint: 'Auto' },
+      { value: 'light', label: 'Clair' },
+      { value: 'dark', label: 'Sombre' },
+    ];
+
+    for (const mode of modes) {
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = `theme-mode-option ${this.settings.theme === mode.value ? 'selected' : ''}`;
+      option.dataset.themeMode = mode.value;
+      option.setAttribute('role', 'radio');
+      option.setAttribute('aria-checked', String(this.settings.theme === mode.value));
+
+      const preview = document.createElement('span');
+      preview.className = `theme-mode-preview theme-mode-preview-${mode.value}`;
+      preview.innerHTML =
+        '<span class="theme-mode-preview-sidebar"></span>' +
+        '<span class="theme-mode-preview-content">' +
+        '<span class="theme-mode-preview-line"></span>' +
+        '<span class="theme-mode-preview-line short"></span>' +
+        '</span>';
+      option.appendChild(preview);
+
+      const label = document.createElement('span');
+      label.className = 'theme-mode-label';
+      label.textContent = mode.label;
+      option.appendChild(label);
+
+      if (mode.hint) {
+        const hint = document.createElement('span');
+        hint.className = 'theme-mode-hint';
+        hint.textContent = mode.hint;
+        option.appendChild(hint);
+      }
+
+      option.addEventListener('click', () => {
+        this.settings.theme = mode.value;
+        themeManager.setPreference(mode.value);
+
+        selector.querySelectorAll<HTMLElement>('.theme-mode-option').forEach((element) => {
+          const isSelected = element.dataset.themeMode === mode.value;
+          element.classList.toggle('selected', isSelected);
+          element.setAttribute('aria-checked', String(isSelected));
+        });
+
+        this.notifyChange();
+      });
+
+      selector.appendChild(option);
+    }
+
+    return selector;
   }
 
   /**

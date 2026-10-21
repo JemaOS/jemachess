@@ -10,7 +10,7 @@ import { ChessGame } from '../../engine';
 import { PieceTheme, PieceColor, GameStatus, Move, PieceType } from '../../types';
 import { getPromotionDialog } from './PromotionDialog';
 import { Toast } from './Toast';
-import { GameSettings } from './Settings';
+import { DEFAULT_SETTINGS, GameSettings } from './Settings';
 import { getGameOverModal, GameOverModal } from './GameOverModal';
 
 /**
@@ -68,13 +68,7 @@ export class GameScreen {
   constructor(container: HTMLElement, settings?: GameSettings) {
     this.container = container;
     this.game = new ChessGame();
-    this.settings = settings || {
-      pieceTheme: PieceTheme.CLASSIC,
-      soundEnabled: true,
-      showLegalMoves: true,
-      showCoordinates: true,
-      autoQueen: false,
-    };
+    this.settings = settings || { ...DEFAULT_SETTINGS };
     
     // Initialize the game over modal
     this.gameOverModal = getGameOverModal();

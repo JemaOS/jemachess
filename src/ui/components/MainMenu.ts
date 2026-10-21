@@ -202,12 +202,12 @@ export class MainMenu {
       }
       
       .glass-button.tertiary {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.1);
+        background: var(--surface-1);
+        border-color: var(--border-subtle);
       }
       
       .glass-button.tertiary:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--surface-3);
       }
       
       .difficulty-modal {
@@ -216,7 +216,7 @@ export class MainMenu {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.8);
+        background: var(--backdrop-strong);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -224,17 +224,19 @@ export class MainMenu {
       }
       
       .difficulty-modal-content {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        background: var(--color-background-gradient);
+        border: 1px solid var(--border-subtle);
         border-radius: 16px;
         padding: 32px;
         max-width: 400px;
         width: 90%;
+        box-shadow: var(--shadow-lg);
       }
       
       .difficulty-modal h3 {
         margin: 0 0 24px 0;
         text-align: center;
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .difficulty-options {
@@ -248,17 +250,17 @@ export class MainMenu {
         align-items: center;
         gap: 16px;
         padding: 16px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         border: 2px solid transparent;
         border-radius: 12px;
         cursor: pointer;
         transition: all 0.2s;
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .difficulty-option:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.2);
+        background: var(--surface-3);
+        border-color: var(--border-strong);
       }
       
       .difficulty-icon {
@@ -267,13 +269,13 @@ export class MainMenu {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(125, 130, 234, 0.15);
+        background: rgba(var(--color-primary-rgb), 0.15);
         border-radius: 12px;
         flex-shrink: 0;
       }
       
       .difficulty-icon .star-rating {
-        color: #7d82ea;
+        color: var(--color-primary);
         font-size: 14px;
         letter-spacing: 2px;
       }
@@ -306,7 +308,7 @@ export class MainMenu {
       
       .difficulty-option .rating {
         font-size: 12px;
-        color: #888;
+        color: var(--color-text-muted);
       }
     `;
     document.head.appendChild(style);

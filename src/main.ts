@@ -9,6 +9,7 @@
 
 import { App } from './app';
 import { initResponsiveManager } from './utils/ResponsiveManager';
+import { initTheme } from './utils/ThemeManager';
 import {
   initServiceWorker,
   onUpdateAvailable,
@@ -23,6 +24,9 @@ import './ui/styles/index.css';
 
 // Application instance
 let app: App | null = null;
+
+// Sync the interface with the OS light/dark preference (Windows, ChromeOS, ...)
+initTheme();
 
 // Responsive manager instance (ULTIMATE 2025 solution)
 const responsiveManager = initResponsiveManager();

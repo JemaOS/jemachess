@@ -17,9 +17,9 @@
   height: min(80vmin, 560px, calc(100vw - 500px));
   border-radius: var(--radius-lg);
   overflow: visible; /* Allow arrows to be visible */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-sm);
+  border: 2px solid var(--board-frame-border);
+  background: var(--board-frame-bg);
   /* Ensure board stays square */
   aspect-ratio: 1 / 1;
   max-width: 100%;
@@ -227,7 +227,7 @@
   position: absolute;
   display: flex;
   flex-direction: column;
-  background: rgba(20, 20, 30, 0.95);
+  background: var(--panel-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: var(--glass-border);
@@ -280,7 +280,7 @@
 .board-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--backdrop-strong);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   display: flex;
@@ -458,7 +458,7 @@
   height: 100vh !important;
   height: 100dvh !important; /* Dynamic viewport height for mobile */
   z-index: 9999;
-  background: #0a0a0f;
+  background: var(--color-background);
   display: flex !important;
   flex-direction: column !important;
   grid-template-columns: none !important;
@@ -532,12 +532,12 @@
   transform: none;
   width: 48px;
   height: 48px;
-  background: rgba(20, 20, 30, 0.9);
+  background: var(--panel-bg-translucent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-strong);
   border-radius: 12px;
-  color: #fff;
+  color: var(--color-text-primary);
   cursor: pointer;
   z-index: 10001;
   display: flex;
@@ -549,8 +549,8 @@
 }
 
 .fullscreen-exit-btn:hover {
-  background: rgba(125, 130, 234, 0.3);
-  border-color: #7d82ea;
+  background: rgba(var(--color-primary-rgb), 0.3);
+  border-color: var(--color-primary);
 }
 
 .fullscreen-exit-btn:active {
@@ -746,16 +746,16 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--surface-3);
+  border: 1px solid var(--border-strong);
   border-radius: 10px;
-  color: #fff;
+  color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .control-button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--surface-4);
   transform: scale(1.05);
 }
 

@@ -128,7 +128,7 @@ export class PromotionDialog {
       
       // Hover effect
       option.addEventListener('mouseenter', () => {
-        option.style.background = 'rgba(107, 111, 219, 0.3)';
+        option.style.background = 'rgba(var(--color-primary-rgb), 0.3)';
       });
       
       option.addEventListener('mouseleave', () => {

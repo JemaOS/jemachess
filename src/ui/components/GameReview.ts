@@ -160,14 +160,15 @@ export class GameReview {
     style.id = styleId;
     style.textContent = `
       .game-review {
-        background: rgba(30, 30, 30, 0.95);
+        background: var(--panel-bg);
         border-radius: 8px;
         padding: 16px;
-        color: #fff;
+        color: var(--color-text-primary);
         font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
         max-width: 320px;
         max-height: 80vh;
         overflow-y: auto;
+        border: 1px solid var(--border-subtle);
       }
       
       .review-header {
@@ -186,14 +187,14 @@ export class GameReview {
       .review-close-btn {
         background: none;
         border: none;
-        color: #888;
+        color: var(--color-text-muted);
         cursor: pointer;
         padding: 4px;
         transition: color 0.2s;
       }
       
       .review-close-btn:hover {
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .review-controls {
@@ -204,18 +205,18 @@ export class GameReview {
       }
       
       .review-btn {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--surface-3);
         border: none;
         border-radius: 6px;
         padding: 8px 12px;
-        color: #ccc;
+        color: var(--color-text-secondary);
         cursor: pointer;
         transition: all 0.2s;
       }
       
       .review-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
-        color: #fff;
+        background: var(--surface-4);
+        color: var(--color-text-primary);
       }
       
       .review-btn:disabled {
@@ -228,7 +229,7 @@ export class GameReview {
         justify-content: space-between;
         align-items: center;
         padding: 8px 12px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         border-radius: 6px;
         margin-bottom: 16px;
       }
@@ -242,14 +243,14 @@ export class GameReview {
         font-weight: bold;
       }
       
-      .evaluation.positive { color: #f0f0f0; }
-      .evaluation.negative { color: #888; }
+      .evaluation.positive { color: var(--color-text-primary); }
+      .evaluation.negative { color: var(--color-text-muted); }
       
       .review-move-list {
         max-height: 200px;
         overflow-y: auto;
         margin-bottom: 16px;
-        background: rgba(0, 0, 0, 0.2);
+        background: var(--surface-sunken);
         border-radius: 6px;
         padding: 8px;
       }
@@ -264,16 +265,16 @@ export class GameReview {
       }
       
       .move-row:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--surface-3);
       }
       
       .move-row.active {
-        background: rgba(100, 150, 255, 0.2);
+        background: rgba(var(--color-primary-rgb), 0.2);
       }
       
       .move-row .move-num {
         width: 30px;
-        color: #666;
+        color: var(--color-text-muted);
         font-size: 12px;
       }
       
@@ -293,19 +294,19 @@ export class GameReview {
       .review-analysis {
         text-align: center;
         padding: 16px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         border-radius: 6px;
         margin-bottom: 16px;
       }
       
       .analysis-status {
-        color: #888;
+        color: var(--color-text-muted);
         font-size: 13px;
         margin-bottom: 12px;
       }
       
       .analysis-status.analyzing {
-        color: #fc6;
+        color: var(--color-warning-text);
       }
       
       .analyze-game-btn {
@@ -332,7 +333,7 @@ export class GameReview {
       .review-summary h4 {
         margin: 0 0 12px 0;
         font-size: 14px;
-        color: #ccc;
+        color: var(--color-text-secondary);
       }
       
       .summary-stats {
@@ -342,7 +343,7 @@ export class GameReview {
       }
       
       .stat-item {
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-1);
         padding: 8px;
         border-radius: 4px;
         text-align: center;
@@ -355,7 +356,7 @@ export class GameReview {
       
       .stat-label {
         font-size: 11px;
-        color: #888;
+        color: var(--color-text-muted);
       }
     `;
     document.head.appendChild(style);
@@ -672,19 +673,19 @@ export class GameReview {
 
     statsEl.innerHTML = `
       <div class="stat-item">
-        <div class="stat-value" style="color: #f0f0f0">${whiteGood}</div>
+        <div class="stat-value" style="color: var(--color-success-text)">${whiteGood}</div>
         <div class="stat-label">White Good</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value" style="color: #333">${blackGood}</div>
+        <div class="stat-value" style="color: var(--color-success-text)">${blackGood}</div>
         <div class="stat-label">Black Good</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value" style="color: ${QUALITY_COLORS.mistake}">${whiteBad}</div>
+        <div class="stat-value" style="color: var(--color-danger-text)">${whiteBad}</div>
         <div class="stat-label">White Errors</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value" style="color: ${QUALITY_COLORS.mistake}">${blackBad}</div>
+        <div class="stat-value" style="color: var(--color-danger-text)">${blackBad}</div>
         <div class="stat-label">Black Errors</div>
       </div>
     `;

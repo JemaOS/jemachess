@@ -764,7 +764,7 @@ export class Tutorial {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.85);
+        background: var(--backdrop-strong);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         display: flex;
@@ -780,14 +780,14 @@ export class Tutorial {
         max-width: 900px;
         height: 85vh;
         max-height: 700px;
-        background: rgba(20, 20, 30, 0.98);
-        border: 1px solid rgba(83, 86, 168, 0.3);
+        background: var(--panel-bg-strong);
+        border: 1px solid rgba(var(--color-primary-rgb), 0.3);
         border-radius: 20px;
         display: grid;
         grid-template-columns: 220px 1fr;
         grid-template-rows: auto 1fr;
         overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        box-shadow: var(--shadow-lg);
         animation: slideUp 0.3s ease-out;
       }
       
@@ -797,8 +797,8 @@ export class Tutorial {
         align-items: center;
         justify-content: space-between;
         padding: 16px 24px;
-        background: rgba(83, 86, 168, 0.15);
-        border-bottom: 1px solid rgba(83, 86, 168, 0.2);
+        background: rgba(var(--color-primary-rgb), 0.12);
+        border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.2);
       }
       
       .tutorial-header-left {
@@ -810,25 +810,25 @@ export class Tutorial {
       .tutorial-header h2 {
         font-size: 18px;
         font-weight: 600;
-        color: #fff;
+        color: var(--color-text-primary);
         margin: 0;
       }
       
       .tutorial-progress {
         font-size: 12px;
         padding: 4px 10px;
-        background: rgba(83, 86, 168, 0.3);
+        background: rgba(var(--color-primary-rgb), 0.25);
         border-radius: 12px;
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--color-text-secondary);
       }
       
       .tutorial-close-btn {
         width: 36px;
         height: 36px;
         border: none;
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--surface-3);
         border-radius: 10px;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--color-text-secondary);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -837,8 +837,8 @@ export class Tutorial {
       }
       
       .tutorial-close-btn:hover {
-        background: rgba(255, 255, 255, 0.15);
-        color: #fff;
+        background: var(--surface-4);
+        color: var(--color-text-primary);
       }
       
       .tutorial-close-btn svg {
@@ -847,8 +847,8 @@ export class Tutorial {
       }
       
       .tutorial-sidebar {
-        background: rgba(0, 0, 0, 0.2);
-        border-right: 1px solid rgba(83, 86, 168, 0.2);
+        background: var(--surface-sunken);
+        border-right: 1px solid rgba(var(--color-primary-rgb), 0.2);
         overflow-y: auto;
         padding: 16px;
       }
@@ -867,7 +867,7 @@ export class Tutorial {
         background: transparent;
         border: none;
         border-radius: 10px;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--color-text-secondary);
         cursor: pointer;
         transition: all 0.2s;
         text-align: left;
@@ -875,13 +875,13 @@ export class Tutorial {
       }
       
       .tutorial-lesson-item:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
+        background: var(--surface-2);
+        color: var(--color-text-primary);
       }
       
       .tutorial-lesson-item.active {
-        background: rgba(83, 86, 168, 0.3);
-        color: #fff;
+        background: rgba(var(--color-primary-rgb), 0.25);
+        color: var(--color-text-primary);
       }
       
       .lesson-number {
@@ -890,7 +890,7 @@ export class Tutorial {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(83, 86, 168, 0.3);
+        background: rgba(var(--color-primary-rgb), 0.25);
         border-radius: 6px;
         font-size: 12px;
         font-weight: 600;
@@ -898,7 +898,7 @@ export class Tutorial {
       }
       
       .tutorial-lesson-item.active .lesson-number {
-        background: #7d82ea;
+        background: var(--color-primary);
       }
       
       .lesson-title {
@@ -917,19 +917,19 @@ export class Tutorial {
       .tutorial-lesson-title {
         font-size: 24px;
         font-weight: 600;
-        color: #fff;
+        color: var(--color-text-primary);
         margin: 0 0 20px;
       }
       
       .tutorial-lesson-content {
         flex: 1;
-        color: rgba(255, 255, 255, 0.85);
+        color: var(--color-text-primary);
         line-height: 1.7;
         font-size: 15px;
       }
       
       .tutorial-lesson-content h4 {
-        color: #7d82ea;
+        color: var(--color-primary);
         font-size: 16px;
         margin: 20px 0 10px;
       }
@@ -949,12 +949,12 @@ export class Tutorial {
       }
       
       .tutorial-lesson-content strong {
-        color: #fff;
+        color: var(--color-text-primary);
       }
       
       .tutorial-tips {
-        background: rgba(83, 86, 168, 0.15);
-        border: 1px solid rgba(83, 86, 168, 0.3);
+        background: rgba(var(--color-primary-rgb), 0.1);
+        border: 1px solid rgba(var(--color-primary-rgb), 0.25);
         border-radius: 12px;
         padding: 16px 20px;
         margin-top: 20px;
@@ -963,7 +963,7 @@ export class Tutorial {
       .tutorial-tips h4 {
         font-size: 14px;
         font-weight: 600;
-        color: #fff;
+        color: var(--color-text-primary);
         margin: 0 0 12px;
       }
       
@@ -974,7 +974,7 @@ export class Tutorial {
       
       .tutorial-tips li {
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--color-text-secondary);
         margin-bottom: 6px;
       }
       
@@ -984,7 +984,7 @@ export class Tutorial {
         gap: 16px;
         margin-top: 24px;
         padding-top: 20px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid var(--divider);
       }
       
       .tutorial-nav-btn {
@@ -992,10 +992,10 @@ export class Tutorial {
         align-items: center;
         gap: 8px;
         padding: 12px 20px;
-        background: rgba(83, 86, 168, 0.2);
-        border: 1px solid rgba(83, 86, 168, 0.3);
+        background: rgba(var(--color-primary-rgb), 0.15);
+        border: 1px solid rgba(var(--color-primary-rgb), 0.3);
         border-radius: 10px;
-        color: #fff;
+        color: var(--color-text-primary);
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
@@ -1003,8 +1003,8 @@ export class Tutorial {
       }
       
       .tutorial-nav-btn:hover:not(:disabled) {
-        background: rgba(83, 86, 168, 0.3);
-        border-color: rgba(83, 86, 168, 0.5);
+        background: rgba(var(--color-primary-rgb), 0.25);
+        border-color: rgba(var(--color-primary-rgb), 0.5);
       }
       
       .tutorial-nav-btn:disabled {
@@ -1043,7 +1043,7 @@ export class Tutorial {
         
         .tutorial-sidebar {
           border-right: none;
-          border-bottom: 1px solid rgba(83, 86, 168, 0.2);
+          border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.2);
           max-height: 150px;
         }
         

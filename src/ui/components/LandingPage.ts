@@ -190,7 +190,7 @@ export class LandingPage {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.8);
+        background: var(--backdrop-strong);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -198,18 +198,18 @@ export class LandingPage {
       }
       
       .profile-modal-content {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        background: var(--color-background-gradient);
         border-radius: 16px;
         padding: 32px;
         max-width: 400px;
         width: 90%;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        box-shadow: var(--shadow-lg);
       }
       
       .profile-modal h3 {
         margin: 0 0 24px 0;
         text-align: center;
-        color: #fff;
+        color: var(--color-text-primary);
         font-size: 1.5rem;
       }
       
@@ -220,34 +220,34 @@ export class LandingPage {
       .profile-form label {
         display: block;
         margin-bottom: 8px;
-        color: #fff;
+        color: var(--color-text-primary);
         font-weight: 500;
       }
       
       .profile-form .glass-input {
         width: 100%;
         padding: 12px 16px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--surface-1);
+        border: 1px solid var(--border-subtle);
         border-radius: 8px;
-        color: #fff;
+        color: var(--color-text-primary);
         font-size: 1rem;
         outline: none;
         transition: border-color 0.2s;
       }
       
       .profile-form .glass-input:focus {
-        border-color: #7d82ea;
+        border-color: var(--color-primary);
       }
       
       .input-hint {
         margin: 8px 0 0 0;
         font-size: 0.8rem;
-        color: #888;
+        color: var(--color-text-muted);
       }
       
       .profile-elo {
-        background: rgba(125, 130, 234, 0.1);
+        background: rgba(var(--color-primary-rgb), 0.1);
         border-radius: 12px;
         padding: 16px;
         margin-bottom: 24px;
@@ -256,14 +256,14 @@ export class LandingPage {
       
       .elo-label {
         display: block;
-        color: #888;
+        color: var(--color-text-muted);
         font-size: 0.9rem;
         margin-bottom: 4px;
       }
       
       .elo-value {
         display: block;
-        color: #7d82ea;
+        color: var(--color-primary);
         font-size: 2rem;
         font-weight: bold;
       }
@@ -271,7 +271,7 @@ export class LandingPage {
       .elo-hint {
         margin: 8px 0 0 0;
         font-size: 0.75rem;
-        color: #666;
+        color: var(--color-text-muted);
       }
       
       .profile-actions {
@@ -290,21 +290,21 @@ export class LandingPage {
       }
       
       .profile-actions .glass-button.secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
+        background: var(--surface-3);
+        color: var(--color-text-primary);
       }
       
       .profile-actions .glass-button.secondary:hover {
-        background: rgba(255, 255, 255, 0.15);
+        background: var(--surface-4);
       }
       
       .profile-actions .glass-button.primary {
-        background: #7d82ea;
+        background: var(--color-primary);
         color: #fff;
       }
       
       .profile-actions .glass-button.primary:hover {
-        background: #6b70d8;
+        background: var(--color-primary-dark);
       }
       
       .sidebar-user .edit-icon {

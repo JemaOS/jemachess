@@ -2,21 +2,69 @@
  * Distributed under the license specified in the root directory of this project.
  */
 
+/* ============================================================
+   Design tokens
+   ------------------------------------------------------------
+   The dark theme is the default. The light theme is applied by
+   setting data-theme="light" on <html> (see ThemeManager).
+   Both themes resolve to the same semantic tokens so components
+   never need to know which theme is active.
+   ============================================================ */
+
 :root {
+  color-scheme: dark;
+
   /* Primary Colors */
   --color-primary: #7d82ea;
   --color-primary-light: #9a9ef0;
   --color-primary-dark: #6366c0;
   --color-primary-rgb: 125, 130, 234;
-  
+
   /* Neutral Colors */
   --color-background: #0a0a0f;
+  --color-background-elevated: #14141f;
+  --color-background-gradient: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 100%);
   --color-surface: rgba(255, 255, 255, 0.05);
   --color-surface-elevated: rgba(255, 255, 255, 0.08);
   --color-text-primary: rgba(255, 255, 255, 0.95);
   --color-text-secondary: rgba(255, 255, 255, 0.7);
   --color-text-muted: rgba(255, 255, 255, 0.5);
-  
+
+  /* Semantic surfaces / borders (theme aware) */
+  --surface-0: rgba(255, 255, 255, 0.04);
+  --surface-1: rgba(255, 255, 255, 0.05);
+  --surface-2: rgba(255, 255, 255, 0.08);
+  --surface-3: rgba(255, 255, 255, 0.1);
+  --surface-4: rgba(255, 255, 255, 0.15);
+  --surface-hover: rgba(255, 255, 255, 0.12);
+  --surface-active: rgba(255, 255, 255, 0.2);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --divider: rgba(255, 255, 255, 0.1);
+  --surface-sunken: rgba(0, 0, 0, 0.2);
+  --panel-bg: rgba(20, 20, 30, 0.95);
+  --panel-bg-strong: rgba(20, 22, 35, 0.98);
+  --panel-bg-soft: rgba(30, 32, 45, 0.98);
+  --panel-bg-translucent: rgba(20, 20, 30, 0.9);
+  --backdrop: rgba(0, 0, 0, 0.6);
+  --backdrop-strong: rgba(0, 0, 0, 0.8);
+  --board-frame-bg: rgba(0, 0, 0, 0.3);
+  --board-frame-border: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+  --scrollbar-track: rgba(255, 255, 255, 0.05);
+  --app-glow-1: rgba(107, 111, 219, 0.15);
+  --app-glow-2: rgba(107, 111, 219, 0.1);
+  --color-success-text: #6c6;
+  --color-warning-text: #fc6;
+  --color-danger-text: #ff6b63;
+
+  /* Elevation */
+  --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 10px 40px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 8px 32px rgba(125, 130, 234, 0.4);
+
   /* Chess Board Colors */
   --color-square-light: #F0D9B5;
   --color-square-dark: #B58863;
@@ -25,13 +73,14 @@
   --color-square-legal-move: rgba(107, 111, 219, 0.4);
   --color-square-last-move: rgba(255, 215, 0, 0.3);
   --color-square-check: rgba(255, 59, 48, 0.5);
-  
+
   /* Glassmorphism */
   --glass-blur: 20px;
   --glass-border: 1px solid rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   --glass-background: rgba(255, 255, 255, 0.05);
-  
+  --glass-background-hover: rgba(255, 255, 255, 0.1);
+
   /* Spacing */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -71,4 +120,64 @@
   --z-overlay: 100;
   --z-modal: 1000;
   --z-toast: 2000;
+}
+
+/* ============================================================
+   Light theme
+   ============================================================ */
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --color-primary: #565bd1;
+  --color-primary-light: #4b50c4;
+  --color-primary-dark: #4348b0;
+  --color-primary-rgb: 86, 91, 209;
+
+  --color-background: #f2f4fa;
+  --color-background-elevated: #ffffff;
+  --color-background-gradient: linear-gradient(180deg, #f8f9fd 0%, #e9edf9 100%);
+  --color-surface: rgba(15, 23, 42, 0.04);
+  --color-surface-elevated: rgba(15, 23, 42, 0.06);
+  --color-text-primary: #151a2d;
+  --color-text-secondary: rgba(21, 26, 45, 0.72);
+  --color-text-muted: rgba(21, 26, 45, 0.52);
+
+  --surface-0: rgba(15, 23, 42, 0.03);
+  --surface-1: rgba(15, 23, 42, 0.04);
+  --surface-2: rgba(15, 23, 42, 0.06);
+  --surface-3: rgba(15, 23, 42, 0.08);
+  --surface-4: rgba(15, 23, 42, 0.12);
+  --surface-hover: rgba(15, 23, 42, 0.09);
+  --surface-active: rgba(15, 23, 42, 0.14);
+  --border-subtle: rgba(15, 23, 42, 0.12);
+  --border-strong: rgba(15, 23, 42, 0.2);
+  --divider: rgba(15, 23, 42, 0.1);
+  --surface-sunken: rgba(15, 23, 42, 0.05);
+  --panel-bg: rgba(255, 255, 255, 0.96);
+  --panel-bg-strong: #ffffff;
+  --panel-bg-soft: #ffffff;
+  --panel-bg-translucent: rgba(255, 255, 255, 0.92);
+  --backdrop: rgba(15, 23, 42, 0.45);
+  --backdrop-strong: rgba(15, 23, 42, 0.6);
+  --board-frame-bg: rgba(15, 23, 42, 0.06);
+  --board-frame-border: rgba(15, 23, 42, 0.12);
+  --scrollbar-thumb: rgba(15, 23, 42, 0.25);
+  --scrollbar-thumb-hover: rgba(15, 23, 42, 0.4);
+  --scrollbar-track: rgba(15, 23, 42, 0.04);
+  --app-glow-1: rgba(86, 91, 209, 0.1);
+  --app-glow-2: rgba(86, 91, 209, 0.06);
+  --color-success-text: #15803d;
+  --color-warning-text: #b45309;
+  --color-danger-text: #b42318;
+
+  --shadow-sm: 0 4px 20px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 10px 40px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.14);
+  --shadow-glow: 0 8px 32px rgba(86, 91, 209, 0.22);
+
+  --glass-border: 1px solid rgba(15, 23, 42, 0.1);
+  --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.1);
+  --glass-background: rgba(255, 255, 255, 0.72);
+  --glass-background-hover: rgba(255, 255, 255, 0.85);
 }
