@@ -1138,10 +1138,13 @@ body.viewport-desktop .chess-board {
 
   /* Toast notifications */
   .toast-container {
-    bottom: 70px !important;
-    right: 10px !important;
-    left: 10px !important;
+    bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+    right: 12px !important;
+    left: 12px !important;
     max-width: none;
+    max-height: 45vh;
+    overflow-y: auto;
+    align-items: stretch;
   }
 
   .toast {
@@ -1701,9 +1704,9 @@ body.viewport-desktop .chess-board {
   }
 
   .toast-container {
-    bottom: calc(10px + env(safe-area-inset-bottom)) !important;
-    right: calc(10px + env(safe-area-inset-right)) !important;
-    left: calc(10px + env(safe-area-inset-left)) !important;
+    bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+    right: calc(12px + env(safe-area-inset-right)) !important;
+    left: calc(12px + env(safe-area-inset-left)) !important;
   }
 
   .chat-overlay {

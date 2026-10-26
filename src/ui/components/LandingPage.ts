@@ -43,6 +43,11 @@ export class LandingPage {
   private submenuElement: HTMLElement | null = null;
   private sidebarCollapsed: boolean = false;
 
+  // Bound event handlers (stable references so listeners can be removed)
+  private boundHandleDocumentClick = (e: MouseEvent): void => this.handleDocumentClick(e);
+  private boundHandleResize = (): void => this.handleResize();
+  private boundHandleKeyDown = (e: KeyboardEvent): void => this.handleKeyDown(e);
+
   // Event callbacks
   public onGetStarted: (() => void) | null = null;
   public onPlay: (() => void) | null = null;
@@ -482,6 +487,12 @@ export class LandingPage {
     const mobileMenuBtn = this.createMobileMenuButton();
     this.pageElement.appendChild(mobileMenuBtn);
 
+    // Create backdrop for the mobile drawer (tap to close)
+    const backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    backdrop.addEventListener('click', () => this.closeMobileMenu());
+    this.pageElement.appendChild(backdrop);
+
     this.container.appendChild(this.pageElement);
 
     // Start stats updates
@@ -491,7 +502,7 @@ export class LandingPage {
     this.setupEventListeners();
 
     // Close submenu when clicking outside
-    document.addEventListener('click', this.handleDocumentClick.bind(this));
+    document.addEventListener('click', this.boundHandleDocumentClick);
   }
 
   /**
@@ -999,11 +1010,28 @@ export class LandingPage {
     });
 
     // Close mobile menu on resize
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768 && this.mobileMenuOpen) {
-        this.closeMobileMenu();
-      }
-    });
+    window.addEventListener('resize', this.boundHandleResize);
+
+    // Close mobile menu with the Escape key
+    document.addEventListener('keydown', this.boundHandleKeyDown);
+  }
+
+  /**
+   * Handle window resize
+   */
+  private handleResize(): void {
+    if (window.innerWidth > 768 && this.mobileMenuOpen) {
+      this.closeMobileMenu();
+    }
+  }
+
+  /**
+   * Handle keyboard shortcuts (Escape closes the mobile menu)
+   */
+  private handleKeyDown(e: KeyboardEvent): void {
+    if (e.key === 'Escape' && this.mobileMenuOpen) {
+      this.closeMobileMenu();
+    }
   }
 
   /**
@@ -1054,12 +1082,16 @@ export class LandingPage {
     this.mobileMenuOpen = !this.mobileMenuOpen;
     const sidebar = this.pageElement?.querySelector('.landing-sidebar');
     const menuBtn = this.pageElement?.querySelector('.mobile-menu-btn');
+    const backdrop = this.pageElement?.querySelector('.sidebar-backdrop');
     
     if (sidebar) {
       sidebar.classList.toggle('open', this.mobileMenuOpen);
     }
     if (menuBtn) {
       menuBtn.classList.toggle('active', this.mobileMenuOpen);
+    }
+    if (backdrop) {
+      backdrop.classList.toggle('visible', this.mobileMenuOpen);
     }
   }
 
@@ -1070,12 +1102,16 @@ export class LandingPage {
     this.mobileMenuOpen = false;
     const sidebar = this.pageElement?.querySelector('.landing-sidebar');
     const menuBtn = this.pageElement?.querySelector('.mobile-menu-btn');
+    const backdrop = this.pageElement?.querySelector('.sidebar-backdrop');
     
     if (sidebar) {
       sidebar.classList.remove('open');
     }
     if (menuBtn) {
       menuBtn.classList.remove('active');
+    }
+    if (backdrop) {
+      backdrop.classList.remove('visible');
     }
   }
 
@@ -1112,7 +1148,10 @@ export class LandingPage {
       this.storeUnsubscribe();
       this.storeUnsubscribe = null;
     }
-    document.removeEventListener('click', this.handleDocumentClick.bind(this));
+    document.removeEventListener('click', this.boundHandleDocumentClick);
+    window.removeEventListener('resize', this.boundHandleResize);
+    document.removeEventListener('keydown', this.boundHandleKeyDown);
+    this.closeMobileMenu();
     this.closeSubmenu();
     if (this.pageElement) {
       this.pageElement.remove();
