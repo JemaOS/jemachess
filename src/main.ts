@@ -21,6 +21,7 @@ import {
   onConnectivityChange,
 } from './utils/pwa';
 import { Toast } from './ui/components/Toast';
+import { initI18n } from './i18n';
 import './ui/styles/index.css';
 
 // Application instance
@@ -28,6 +29,9 @@ let app: App | null = null;
 
 // Sync the interface with the OS light/dark preference (Windows, ChromeOS, ...)
 initTheme();
+
+// Follow the system language (French / English), with a manual override.
+initI18n();
 
 // Responsive manager instance (ULTIMATE 2025 solution)
 const responsiveManager = initResponsiveManager();

@@ -8,6 +8,7 @@
 import { PieceTheme } from '../../types';
 import { PieceRenderer } from './Piece';
 import { themeManager, type ThemePreference } from '../../utils/ThemeManager';
+import { getLangPref, setLangPref, type LangPref } from '../../i18n';
 
 /**
  * Game settings interface
@@ -180,6 +181,11 @@ export class Settings {
     );
 
     this.settingsElement.appendChild(appearanceSection);
+
+    // Language Section
+    const languageSection = this.createSection('Langue');
+    languageSection.appendChild(this.createLanguageSelector());
+    this.settingsElement.appendChild(languageSection);
 
     // Gameplay Section
     const gameplaySection = this.createSection('Gameplay');
@@ -363,6 +369,44 @@ export class Settings {
       options[nextIndex]?.focus();
       options[nextIndex]?.click();
     });
+
+    return selector;
+  }
+
+  /**
+   * Creates the language selector (system / français / english)
+   */
+  private createLanguageSelector(): HTMLElement {
+    const selector = document.createElement('div');
+    selector.className = 'lang-selector';
+    selector.setAttribute('role', 'radiogroup');
+    selector.setAttribute('aria-label', 'Langue');
+
+    const current = getLangPref();
+    const options: { value: LangPref; label: string }[] = [
+      { value: 'system', label: 'Système' },
+      { value: 'fr', label: 'Français' },
+      { value: 'en', label: 'English' },
+    ];
+
+    for (const option of options) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `lang-option ${current === option.value ? 'selected' : ''}`;
+      button.dataset.lang = option.value;
+      button.setAttribute('role', 'radio');
+      button.setAttribute('aria-checked', String(current === option.value));
+      button.textContent = option.label;
+      button.addEventListener('click', () => {
+        setLangPref(option.value);
+        selector.querySelectorAll<HTMLElement>('.lang-option').forEach((element) => {
+          const isSelected = element.dataset.lang === option.value;
+          element.classList.toggle('selected', isSelected);
+          element.setAttribute('aria-checked', String(isSelected));
+        });
+      });
+      selector.appendChild(button);
+    }
 
     return selector;
   }

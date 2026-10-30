@@ -933,3 +933,118 @@
     font-size: var(--font-size-xs);
   }
 }
+/* Language selector */
+.lang-selector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.lang-option {
+  padding: 10px 8px;
+  border-radius: var(--radius-md);
+  border: 2px solid transparent;
+  background: var(--surface-1);
+  color: var(--color-text-secondary);
+  font: inherit;
+  cursor: pointer;
+  appearance: none;
+  transition: all var(--transition-normal);
+}
+
+.lang-option:hover {
+  background: var(--surface-2);
+}
+
+.lang-option:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.lang-option.selected {
+  border-color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-text-primary);
+}
+
+/* Mobile: full-height settings sheet, safe areas, always scrollable */
+@media (max-width: 640px) {
+  .settings-panel {
+    position: fixed;
+    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    border-radius: 0;
+    transform: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 16px)
+      16px
+      calc(env(safe-area-inset-bottom, 0px) + 16px);
+  }
+}
+
+/* Very narrow phones (iPhone SE 2016 = 320px, folded cover screens) */
+@media (max-width: 380px) {
+  .settings-panel {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .theme-mode-selector {
+    gap: 6px;
+  }
+
+  .theme-mode-option {
+    padding: 8px 4px;
+    gap: 4px;
+  }
+
+  .theme-mode-preview {
+    height: 32px;
+  }
+
+  .theme-mode-preview-content {
+    padding: 5px;
+    gap: 3px;
+  }
+
+  .theme-mode-label {
+    font-size: 12px;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  .theme-mode-hint {
+    display: none;
+  }
+
+  .lang-selector {
+    gap: 6px;
+  }
+
+  .lang-option {
+    padding: 8px 4px;
+    font-size: 13px;
+  }
+
+  .piece-set-selector {
+    gap: 6px;
+  }
+
+  .piece-set-name {
+    font-size: 11px;
+  }
+
+  .settings-description {
+    font-size: 12px;
+  }
+}
